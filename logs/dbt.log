@@ -1,0 +1,122 @@
+[0m15:11:46.415760 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001D3F00A9650>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001D3EFCE0090>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001D3EFBE50D0>]}
+
+
+============================== 15:11:46.424859 | 2c035f9a-8e51-4b05-b0a8-273dde30ae14 ==============================
+[0m15:11:46.424859 [info ] [MainThread]: Running with dbt=1.6.18
+[0m15:11:46.426852 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'fail_fast': 'False', 'debug': 'False', 'log_path': 'logs', 'profiles_dir': 'C:\\Users\\Evans Moseti\\.dbt', 'version_check': 'True', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'static_parser': 'True', 'introspect': 'True', 'log_format': 'default', 'target_path': 'None', 'invocation_command': 'dbt init ethereum_dbt', 'send_anonymous_usage_stats': 'True'}
+[0m15:11:46.429690 [debug] [MainThread]: Starter project path: C:\kev\Ethereum_Blockchain\eth_blockchain\venv\Lib\site-packages\dbt\include\starter_project
+[0m15:11:46.545589 [info ] [MainThread]: 
+Your new dbt project "ethereum_dbt" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m15:11:46.563340 [info ] [MainThread]: Setting up your profile.
+[0m15:11:51.661936 [debug] [MainThread]: Command `dbt init` succeeded at 15:11:51.660933 after 5.28 seconds
+[0m15:11:51.662931 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001D3EFC4A510>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001D3EF963190>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001D3EF9F2F10>]}
+[0m15:11:51.662931 [debug] [MainThread]: Flushing usage events
+[0m15:13:04.935788 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001F4032A9C90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001F403408CD0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001F402DA6750>]}
+
+
+============================== 15:13:04.942455 | c17d8b9b-3059-4340-baa1-5ee4f1e2929a ==============================
+[0m15:13:04.942455 [info ] [MainThread]: Running with dbt=1.6.18
+[0m15:13:04.944443 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'debug': 'False', 'profiles_dir': 'C:\\Users\\Evans Moseti\\.dbt', 'log_path': 'logs', 'fail_fast': 'False', 'version_check': 'True', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'invocation_command': 'dbt debug', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'introspect': 'True', 'target_path': 'None', 'static_parser': 'True', 'send_anonymous_usage_stats': 'True'}
+[0m15:13:04.945575 [info ] [MainThread]: dbt version: 1.6.18
+[0m15:13:04.947066 [info ] [MainThread]: python version: 3.11.3
+[0m15:13:04.948346 [info ] [MainThread]: python path: C:\kev\Ethereum_Blockchain\eth_blockchain\venv\Scripts\python.exe
+[0m15:13:04.950346 [info ] [MainThread]: os info: Windows-10-10.0.19045-SP0
+[0m15:13:05.119648 [info ] [MainThread]: Using profiles dir at C:\Users\Evans Moseti\.dbt
+[0m15:13:05.121643 [info ] [MainThread]: Using profiles.yml file at C:\Users\Evans Moseti\.dbt\profiles.yml
+[0m15:13:05.122265 [info ] [MainThread]: Using dbt_project.yml file at C:\kev\Ethereum_Blockchain\eth_blockchain\dbt_project.yml
+[0m15:13:05.124264 [error] [MainThread]: Encountered an error:
+Internal Error
+  Profile should not be None if loading profile completed
+[0m15:13:05.126477 [debug] [MainThread]: Command `dbt debug` failed at 15:13:05.125447 after 0.23 seconds
+[0m15:13:05.127434 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001F4034A4150>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001F4034E4750>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001F47C848290>]}
+[0m15:13:05.129469 [debug] [MainThread]: Flushing usage events
+[0m15:19:03.405635 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000189417C2B90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018941041250>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001894130D3D0>]}
+
+
+============================== 15:19:03.411627 | 8945de3a-203c-49bb-a96c-5efe7572f9fd ==============================
+[0m15:19:03.411627 [info ] [MainThread]: Running with dbt=1.6.18
+[0m15:19:03.413759 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'debug': 'False', 'version_check': 'True', 'log_path': 'logs', 'fail_fast': 'False', 'profiles_dir': 'C:\\Users\\Evans Moseti\\.dbt', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'introspect': 'True', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'static_parser': 'True', 'target_path': 'None', 'invocation_command': 'dbt debug', 'send_anonymous_usage_stats': 'True'}
+[0m15:19:03.414933 [info ] [MainThread]: dbt version: 1.6.18
+[0m15:19:03.415932 [info ] [MainThread]: python version: 3.11.3
+[0m15:19:03.417928 [info ] [MainThread]: python path: C:\kev\Ethereum_Blockchain\eth_blockchain\venv\Scripts\python.exe
+[0m15:19:03.418925 [info ] [MainThread]: os info: Windows-10-10.0.19045-SP0
+[0m15:19:03.591948 [info ] [MainThread]: Using profiles dir at C:\Users\Evans Moseti\.dbt
+[0m15:19:03.592909 [info ] [MainThread]: Using profiles.yml file at C:\Users\Evans Moseti\.dbt\profiles.yml
+[0m15:19:03.593909 [info ] [MainThread]: Using dbt_project.yml file at C:\kev\Ethereum_Blockchain\eth_blockchain\dbt_project.yml
+[0m15:19:03.595902 [error] [MainThread]: Encountered an error:
+Internal Error
+  Profile should not be None if loading profile completed
+[0m15:19:03.597934 [debug] [MainThread]: Command `dbt debug` failed at 15:19:03.597934 after 0.21 seconds
+[0m15:19:03.598894 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018941072950>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000189410705D0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000189417C3E10>]}
+[0m15:19:03.599933 [debug] [MainThread]: Flushing usage events
+[0m15:24:31.636269 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B4F7F9950>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B4F7FA850>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B4F7F9790>]}
+
+
+============================== 15:24:31.642247 | 5cec18b5-6d77-4cf0-85c4-6b99a417bc27 ==============================
+[0m15:24:31.642247 [info ] [MainThread]: Running with dbt=1.6.18
+[0m15:24:31.643244 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'write_json': 'True', 'log_cache_events': 'False', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': 'C:\\Users\\Evans Moseti\\.dbt', 'debug': 'False', 'warn_error': 'None', 'log_path': 'logs', 'version_check': 'True', 'fail_fast': 'False', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'introspect': 'True', 'static_parser': 'True', 'invocation_command': 'dbt debug', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'send_anonymous_usage_stats': 'True'}
+[0m15:24:31.645239 [info ] [MainThread]: dbt version: 1.6.18
+[0m15:24:31.647242 [info ] [MainThread]: python version: 3.11.3
+[0m15:24:31.648240 [info ] [MainThread]: python path: C:\kev\Ethereum_Blockchain\eth_blockchain\venv\Scripts\python.exe
+[0m15:24:31.649237 [info ] [MainThread]: os info: Windows-10-10.0.19045-SP0
+[0m15:24:31.815511 [info ] [MainThread]: Using profiles dir at C:\Users\Evans Moseti\.dbt
+[0m15:24:31.824564 [info ] [MainThread]: Using profiles.yml file at C:\Users\Evans Moseti\.dbt\profiles.yml
+[0m15:24:31.824564 [info ] [MainThread]: Using dbt_project.yml file at C:\kev\Ethereum_Blockchain\eth_blockchain\dbt_project.yml
+[0m15:24:31.824564 [error] [MainThread]: Encountered an error:
+Internal Error
+  Profile should not be None if loading profile completed
+[0m15:24:31.830587 [debug] [MainThread]: Command `dbt debug` failed at 15:24:31.830587 after 0.23 seconds
+[0m15:24:31.833579 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B4F0A4150>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B4F0A4650>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000017B4F0B0250>]}
+[0m15:24:31.835808 [debug] [MainThread]: Flushing usage events
+[0m15:26:27.308435 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001E4100EE310>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001E40FCA3350>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001E40FC89A10>]}
+
+
+============================== 15:26:27.315043 | 667e6611-eabf-4437-88a9-4ac070addb93 ==============================
+[0m15:26:27.315043 [info ] [MainThread]: Running with dbt=1.6.18
+[0m15:26:27.316167 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'warn_error': 'None', 'fail_fast': 'False', 'debug': 'False', 'log_path': 'logs', 'version_check': 'True', 'profiles_dir': 'C:\\Users\\Evans Moseti\\.dbt', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'introspect': 'True', 'static_parser': 'True', 'log_format': 'default', 'target_path': 'None', 'invocation_command': 'dbt debug', 'send_anonymous_usage_stats': 'True'}
+[0m15:26:27.318200 [info ] [MainThread]: dbt version: 1.6.18
+[0m15:26:27.319161 [info ] [MainThread]: python version: 3.11.3
+[0m15:26:27.320158 [info ] [MainThread]: python path: C:\kev\Ethereum_Blockchain\eth_blockchain\venv\Scripts\python.exe
+[0m15:26:27.322154 [info ] [MainThread]: os info: Windows-10-10.0.19045-SP0
+[0m15:26:27.478812 [info ] [MainThread]: Using profiles dir at C:\Users\Evans Moseti\.dbt
+[0m15:26:27.479773 [info ] [MainThread]: Using profiles.yml file at C:\Users\Evans Moseti\.dbt\profiles.yml
+[0m15:26:27.480768 [info ] [MainThread]: Using dbt_project.yml file at C:\kev\Ethereum_Blockchain\eth_blockchain\dbt_project.yml
+[0m15:26:27.482764 [error] [MainThread]: Encountered an error:
+Internal Error
+  Profile should not be None if loading profile completed
+[0m15:26:27.483761 [debug] [MainThread]: Command `dbt debug` failed at 15:26:27.483761 after 0.23 seconds
+[0m15:26:27.484795 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001E4100F5690>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001E40FA03710>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001E40F961A50>]}
+[0m15:26:27.485772 [debug] [MainThread]: Flushing usage events
+[0m15:27:00.643340 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002ED9F232410>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002ED9F232AD0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002ED9F4EC2D0>]}
+
+
+============================== 15:27:00.650242 | 6eef8428-87ce-4a0f-8f40-3f7c5fa9a5a9 ==============================
+[0m15:27:00.650242 [info ] [MainThread]: Running with dbt=1.6.18
+[0m15:27:00.652240 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'indirect_selection': 'eager', 'log_cache_events': 'False', 'write_json': 'True', 'partial_parse': 'True', 'cache_selected_only': 'False', 'profiles_dir': 'C:\\Users\\Evans Moseti\\.dbt', 'fail_fast': 'False', 'debug': 'True', 'log_path': 'logs', 'version_check': 'True', 'warn_error': 'None', 'use_colors': 'True', 'use_experimental_parser': 'False', 'no_print': 'None', 'quiet': 'False', 'log_format': 'default', 'static_parser': 'True', 'introspect': 'True', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'target_path': 'None', 'invocation_command': 'dbt debug --debug', 'send_anonymous_usage_stats': 'True'}
+[0m15:27:00.654235 [info ] [MainThread]: dbt version: 1.6.18
+[0m15:27:00.655682 [info ] [MainThread]: python version: 3.11.3
+[0m15:27:00.657675 [info ] [MainThread]: python path: C:\kev\Ethereum_Blockchain\eth_blockchain\venv\Scripts\python.exe
+[0m15:27:00.658668 [info ] [MainThread]: os info: Windows-10-10.0.19045-SP0
+[0m15:27:00.822082 [info ] [MainThread]: Using profiles dir at C:\Users\Evans Moseti\.dbt
+[0m15:27:00.823079 [info ] [MainThread]: Using profiles.yml file at C:\Users\Evans Moseti\.dbt\profiles.yml
+[0m15:27:00.824766 [info ] [MainThread]: Using dbt_project.yml file at C:\kev\Ethereum_Blockchain\eth_blockchain\dbt_project.yml
+[0m15:27:00.825758 [error] [MainThread]: Encountered an error:
+Internal Error
+  Profile should not be None if loading profile completed
+[0m15:27:00.827790 [debug] [MainThread]: Command `dbt debug` failed at 15:27:00.826756 after 0.21 seconds
+[0m15:27:00.829749 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002ED985F9790>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002ED985F9850>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000002ED988C7690>]}
+[0m15:27:00.831742 [debug] [MainThread]: Flushing usage events
