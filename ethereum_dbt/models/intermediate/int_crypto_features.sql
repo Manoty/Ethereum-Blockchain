@@ -1,5 +1,6 @@
 {{ config(materialized='view') }}
 
+-- Intermediate crypto features: daily returns, moving averages, volatility
 with base as (
 
     select *
@@ -20,7 +21,6 @@ returns as (
         / lag(close_price) over (partition by asset order by date) as daily_return
 
     from base
-    where close_price is not null
 
 ),
 
@@ -28,21 +28,22 @@ moving_averages as (
 
     select
         *,
-        -- 7-day moving average
+        
+        -- 7-day moving average of close price
         avg(close_price) over (
             partition by asset
             order by date
             rows between 6 preceding and current row
         ) as ma_7,
 
-        -- 30-day moving average
+        -- 30-day moving average of close price
         avg(close_price) over (
             partition by asset
             order by date
             rows between 29 preceding and current row
         ) as ma_30,
 
-        -- 7-day rolling volatility
+        -- 7-day rolling volatility (standard deviation of daily returns)
         stddev(daily_return) over (
             partition by asset
             order by date
@@ -55,3 +56,4 @@ moving_averages as (
 
 select *
 from moving_averages
+order by asset, date
