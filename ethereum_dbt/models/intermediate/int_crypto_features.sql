@@ -1,4 +1,12 @@
-select *
+{{ config(materialized='view') }}
+
+with base as (
+
+    select
+        asset,
+        date,
+        close_price,
+        volume
     from {{ ref('stg_all_crypto') }}
 
 ),
@@ -10,14 +18,13 @@ returns as (
         date,
         close_price,
         volume,
-
-        -- Daily return
+        -- Daily return with nullif to prevent divide-by-zero
         (close_price - lag(close_price)
             over (partition by asset order by date))
-        / lag(close_price)
-            over (partition by asset order by date)
-        as daily_return
-
+        / nullif(
+            lag(close_price) over (partition by asset order by date),
+            0
+        ) as daily_return
     from base
 
 ),
@@ -26,7 +33,6 @@ moving_averages as (
 
     select
         *,
-        
         -- 7-day moving average
         avg(close_price)
             over (
