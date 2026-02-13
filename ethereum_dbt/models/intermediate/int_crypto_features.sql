@@ -1,50 +1,34 @@
-{{ config(materialized='view') }}
+-- models/intermediate/int_crypto_features.sql
 
--- Safely get seed tables (won't crash if none exist yet)
-{% set relations = [] %}
-{% if execute %}
-    {% set relations = dbt_utils.get_relations_by_pattern(
-        schema_pattern=target.schema,
-        table_pattern='%'
-    ) %}
-{% endif %}
+select *
+from (
+    with base as (
+        select
+            asset,
+            date,
+            cast(open_price as double) as open_price,
+            cast(close_price as double) as close_price,
+            cast(high as double) as high,
+            cast(low as double) as low,
+            cast(volume as double) as volume,
 
-{% set seed_tables = [] %}
+            -- daily return
+            case
+                when open_price is not null and cast(open_price as double) != 0
+                then (cast(close_price as double) - cast(open_price as double)) / cast(open_price as double)
+                else null
+            end as daily_return,
 
-{% for relation in relations %}
-    {% if relation.type == 'table' and relation.identifier != 'stg_all_crypto' %}
-        {% do seed_tables.append(relation) %}
-    {% endif %}
-{% endfor %}
+            -- log return
+            case
+                when open_price is not null and cast(open_price as double) > 0
+                     and close_price is not null and cast(close_price as double) > 0
+                then ln(cast(close_price as double) / cast(open_price as double))
+                else null
+            end as log_return
 
--- If no tables, just return empty set (compiles safely)
-{% if seed_tables | length == 0 %}
-select
-    null as asset,
-    null::date as date,
-    null::double as open_price,
-    null::double as high_price,
-    null::double as low_price,
-    null::double as close_price,
-    null::double as volume
-where false
-{% else %}
-
-{% for table in seed_tables %}
-
-select
-    '{{ table.identifier }}' as asset,
-    cast(Date as date) as date,
-    cast(Open as double) as open_price,
-    cast(High as double) as high_price,
-    cast(Low as double) as low_price,
-    cast(Close as double) as close_price,
-    cast(Volume as double) as volume
-from {{ table }}
-
-{% if not loop.last %}
-union all
-{% endif %}
-
-{% endfor %}
-{% endif %}
+        from {{ ref('stg_all_crypto') }}
+    )
+    select *
+    from base
+) as t
