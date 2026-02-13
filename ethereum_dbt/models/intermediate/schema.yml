@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: int_daily_asset_metrics
+    description: |
+      Computes daily returns, 7-day & 30-day moving averages, and 7-day rolling volatility
+      for each cryptocurrency asset using the staging table `stg_all_crypto`.
+      Serves as the intermediate feature table for analytics and marts.
+    columns:
+      - name: asset
+        description: The cryptocurrency asset (e.g., BTC, ETH).
+        tests:
+          - not_null
+      - name: date
+        description: Trading date (UTC) for the asset.
+        tests:
+          - not_null
+          - unique_combination_of_columns:
+              combination_of_columns: ['asset', 'date']
+      - name: close_price
+        description: Closing price of the asset on the trading date (USD).
+        tests:
+          - not_null
+      - name: daily_return
+        description: Daily return of the asset computed as (close - previous_close) / previous_close.
+        tests:
+          - not_null
+      - name: ma_7
+        description: 7-day moving average of the closing price.
+      - name: ma_30
+        description: 30-day moving average of the closing price.
+      - name: volatility_7
+        description: 7-day rolling standard deviation of daily returns (volatility).
+      - name: volume
+        description: Daily trading volume for the asset.
