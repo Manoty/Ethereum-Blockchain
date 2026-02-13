@@ -1,65 +1,44 @@
-{{ config(
-    materialized='view',
-    tags=['intermediate', 'feature']
-) }}
+-- models/intermediate/int_daily_asset_metrics.sql
 
-with base as (
-
-    select *
-    from {{ ref('stg_all_crypto') }}
-
+with features as (
+    select
+        asset,
+        date,
+        cast(open_price as double) as open_price,
+        cast(close_price as double) as close_price,
+        cast(volume as double) as volume,
+        
+        -- daily return
+        case
+            when open_price is not null and cast(open_price as double) != 0
+            then (cast(close_price as double) - cast(open_price as double)) / cast(open_price as double)
+            else null
+        end as daily_return
+    from {{ ref('int_crypto_features') }}
 ),
 
-returns as (
-
+metrics as (
     select
         asset,
         date,
         close_price,
-        volume,
+        daily_return,
+        -- rolling 7-day volatility example
+        stddev_samp(daily_return) over (
+            partition by asset
+            order by date
+            rows between 6 preceding and current row
+        ) as rolling_vol_7d,
 
-        -- daily return
-        (close_price - lag(close_price)
-            over (partition by asset order by date))
-        / lag(close_price)
-            over (partition by asset order by date) as daily_return
+        -- simple moving average 7-day
+        avg(close_price) over (
+            partition by asset
+            order by date
+            rows between 6 preceding and current row
+        ) as sma_7d
 
-    from base
-
-),
-
-moving_averages as (
-
-    select
-        *,
-        
-        -- 7-day moving average
-        avg(close_price)
-            over (
-                partition by asset
-                order by date
-                rows between 6 preceding and current row
-            ) as ma_7,
-
-        -- 30-day moving average
-        avg(close_price)
-            over (
-                partition by asset
-                order by date
-                rows between 29 preceding and current row
-            ) as ma_30,
-
-        -- 7-day rolling volatility
-        stddev(daily_return)
-            over (
-                partition by asset
-                order by date
-                rows between 6 preceding and current row
-            ) as volatility_7
-
-    from returns
-
+    from features
 )
 
 select *
-from moving_averages
+from metrics
