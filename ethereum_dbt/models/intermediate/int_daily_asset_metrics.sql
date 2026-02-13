@@ -1,44 +1,40 @@
 -- models/intermediate/int_daily_asset_metrics.sql
 
-with features as (
-    select
-        asset,
-        date,
-        cast(open_price as double) as open_price,
-        cast(close_price as double) as close_price,
-        cast(volume as double) as volume,
-        
-        -- daily return
-        case
-            when open_price is not null and cast(open_price as double) != 0
-            then (cast(close_price as double) - cast(open_price as double)) / cast(open_price as double)
-            else null
-        end as daily_return
-    from {{ ref('int_crypto_features') }}
-),
-
-metrics as (
-    select
-        asset,
-        date,
-        close_price,
-        daily_return,
-        -- rolling 7-day volatility example
-        stddev_samp(daily_return) over (
-            partition by asset
-            order by date
-            rows between 6 preceding and current row
-        ) as rolling_vol_7d,
-
-        -- simple moving average 7-day
-        avg(close_price) over (
-            partition by asset
-            order by date
-            rows between 6 preceding and current row
-        ) as sma_7d
-
-    from features
-)
-
 select *
-from metrics
+from (
+    with base as (
+        select
+            asset,
+            date,
+            cast(open_price as double) as open_price,
+            cast(close_price as double) as close_price,
+            cast(high as double) as high,
+            cast(low as double) as low,
+            cast(volume as double) as volume,
+
+            -- daily return
+            case
+                when open_price is not null and cast(open_price as double) != 0
+                then (cast(close_price as double) - cast(open_price as double)) / cast(open_price as double)
+                else null
+            end as daily_return,
+
+            -- log return
+            case
+                when open_price is not null and cast(open_price as double) > 0
+                     and close_price is not null and cast(close_price as double) > 0
+                then ln(cast(close_price as double) / cast(open_price as double))
+                else null
+            end as log_return,
+
+            -- change from previous close
+            case
+                when lag(cast(close_price as double)) over (partition by asset order by date) is not null
+                then cast(close_price as double) - lag(cast(close_price as double)) over (partition by asset order by date)
+                else null
+            end as change_prev_close
+        from {{ ref('stg_all_crypto') }}
+    )
+    select *
+    from base
+) as t
