@@ -1,594 +1,121 @@
-{{ config(materialized='view') }}
+with source as (
 
-with all_crypto as (
-
-    select
-        'aave' as asset,
-        cast(date as date) as date,
-        cast(open as double) as open_price,
-        cast(high as double) as high,
-        cast(low as double) as low,
-        cast(close as double) as close_price,
-        cast(volume as double) as volume
-    from {{ ref('aave') }}
-
+    select *, 'aave' as asset from {{ ref('aave') }}
     union all
-
-    select
-        'algorand',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('algorand') }}
-
+    select *, 'algorand' as asset from {{ ref('algorand') }}
     union all
-
-    select
-        'aptos',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('aptos') }}
-
+    select *, 'aptos' as asset from {{ ref('aptos') }}
     union all
-
-    select
-        'arbitrum',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('arbitrum') }}
-
+    select *, 'arbitrum' as asset from {{ ref('arbitrum') }}
     union all
-
-    select
-        'avalanche',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('avalanche') }}
-
+    select *, 'avalanche' as asset from {{ ref('avalanche') }}
     union all
-
-    select
-        'axie_infinity',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('axie_infinity') }}
-
+    select *, 'axie_infinity' as asset from {{ ref('axie_infinity') }}
     union all
-
-    select
-        'binance_coin',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('binance_coin') }}
-
+    select *, 'binance_coin' as asset from {{ ref('binance_coin') }}
     union all
-
-    select
-        'bitcoin',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('bitcoin') }}
-
+    select *, 'bitcoin' as asset from {{ ref('bitcoin') }}
     union all
-
-    select
-        'bitcoin_cash',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('bitcoin_cash') }}
-
+    select *, 'bitcoin_cash' as asset from {{ ref('bitcoin_cash') }}
     union all
-
-    select
-        'cardano',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('cardano') }}
-
+    select *, 'cardano' as asset from {{ ref('cardano') }}
     union all
-
-    select
-        'chainlink',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('chainlink') }}
-
+    select *, 'chainlink' as asset from {{ ref('chainlink') }}
     union all
-
-    select
-        'cosmos',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('cosmos') }}
-
+    select *, 'cosmos' as asset from {{ ref('cosmos') }}
     union all
-
-    select
-        'decentraland',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('decentraland') }}
-
+    select *, 'decentraland' as asset from {{ ref('decentraland') }}
     union all
-
-    select
-        'dogecoin',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('dogecoin') }}
-
+    select *, 'dogecoin' as asset from {{ ref('dogecoin') }}
     union all
-
-    select
-        'eos',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('eos') }}
-
+    select *, 'eos' as asset from {{ ref('eos') }}
     union all
-
-    select
-        'ethereum',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('ethereum') }}
-
+    select *, 'ethereum' as asset from {{ ref('ethereum') }}
     union all
-
-    select
-        'fantom',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('fantom') }}
-
+    select *, 'fantom' as asset from {{ ref('fantom') }}
     union all
-
-    select
-        'filecoin',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('filecoin') }}
-
+    select *, 'filecoin' as asset from {{ ref('filecoin') }}
     union all
-
-    select
-        'flow',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('flow') }}
-
+    select *, 'flow' as asset from {{ ref('flow') }}
     union all
-
-    select
-        'hedera',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('hedera') }}
-
+    select *, 'hedera' as asset from {{ ref('hedera') }}
     union all
-
-    select
-        'immutable',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('immutable') }}
-
+    select *, 'immutable' as asset from {{ ref('immutable') }}
     union all
-
-    select
-        'injective',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('injective') }}
-
+    select *, 'injective' as asset from {{ ref('injective') }}
     union all
-
-    select
-        'internet_computer',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('internet_computer') }}
-
+    select *, 'internet_computer' as asset from {{ ref('internet_computer') }}
     union all
-
-    select
-        'kaspa',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('kaspa') }}
-
+    select *, 'kaspa' as asset from {{ ref('kaspa') }}
     union all
-
-    select
-        'lido',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('lido') }}
-
+    select *, 'lido' as asset from {{ ref('lido') }}
     union all
-
-    select
-        'litecoin',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('litecoin') }}
-
+    select *, 'litecoin' as asset from {{ ref('litecoin') }}
     union all
-
-    select
-        'maker',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('maker') }}
-
+    select *, 'maker' as asset from {{ ref('maker') }}
     union all
-
-    select
-        'near',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('near') }}
-
+    select *, 'near' as asset from {{ ref('near') }}
     union all
-
-    select
-        'optimism',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('optimism') }}
-
+    select *, 'optimism' as asset from {{ ref('optimism') }}
     union all
-
-    select
-        'pepe',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('pepe') }}
-
+    select *, 'pepe' as asset from {{ ref('pepe') }}
     union all
-
-    select
-        'polkadot',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('polkadot') }}
-
+    select *, 'polkadot' as asset from {{ ref('polkadot') }}
     union all
-
-    select
-        'polygon',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('polygon') }}
-
+    select *, 'polygon' as asset from {{ ref('polygon') }}
     union all
-
-    select
-        'render',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('render') }}
-
+    select *, 'render' as asset from {{ ref('render') }}
     union all
-
-    select
-        'sandbox',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('sandbox') }}
-
+    select *, 'sandbox' as asset from {{ ref('sandbox') }}
     union all
-
-    select
-        'shiba_inu',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('shiba_inu') }}
-
+    select *, 'shiba_inu' as asset from {{ ref('shiba_inu') }}
     union all
-
-    select
-        'solana',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('solana') }}
-
+    select *, 'solana' as asset from {{ ref('solana') }}
     union all
-
-    select
-        'stacks',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('stacks') }}
-
+    select *, 'stacks' as asset from {{ ref('stacks') }}
     union all
-
-    select
-        'stellar',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('stellar') }}
-
+    select *, 'stellar' as asset from {{ ref('stellar') }}
     union all
-
-    select
-        'sui',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('sui') }}
-
+    select *, 'sui' as asset from {{ ref('sui') }}
     union all
-
-    select
-        'tether',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('tether') }}
-
+    select *, 'tether' as asset from {{ ref('tether') }}
     union all
-
-    select
-        'tezos',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('tezos') }}
-
+    select *, 'tezos' as asset from {{ ref('tezos') }}
     union all
-
-    select
-        'theta',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('theta') }}
-
+    select *, 'the_graph' as asset from {{ ref('the_graph') }}
     union all
-
-    select
-        'the_graph',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('the_graph') }}
-
+    select *, 'theta' as asset from {{ ref('theta') }}
     union all
-
-    select
-        'toncoin',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('toncoin') }}
-
+    select *, 'toncoin' as asset from {{ ref('toncoin') }}
     union all
-
-    select
-        'tron',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('tron') }}
-
+    select *, 'tron' as asset from {{ ref('tron') }}
     union all
-
-    select
-        'uniswap',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('uniswap') }}
-
+    select *, 'uniswap' as asset from {{ ref('uniswap') }}
     union all
-
-    select
-        'usd_coin',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('usd_coin') }}
-
+    select *, 'usd_coin' as asset from {{ ref('usd_coin') }}
     union all
-
-    select
-        'vechain',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('vechain') }}
-
+    select *, 'vechain' as asset from {{ ref('vechain') }}
     union all
+    select *, 'xrp' as asset from {{ ref('xrp') }}
+
+),
+
+cleaned as (
 
     select
-        'xrp',
-        cast(date as date),
-        cast(open as double),
-        cast(high as double),
-        cast(low as double),
-        cast(close as double),
-        cast(volume as double)
-    from {{ ref('xrp') }}
+        asset,
+        date,
+
+        try_cast(open as double) as open_price,
+        try_cast(high as double) as high,
+        try_cast(low as double) as low,
+        try_cast(close as double) as close_price,
+        try_cast(volume as double) as volume
+
+    from source
 
 )
 
 select *
-from all_crypto
+from cleaned
+where open_price is not null
