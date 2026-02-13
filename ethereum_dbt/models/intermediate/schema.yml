@@ -15,8 +15,6 @@ models:
         description: Trading date (UTC) for the asset.
         tests:
           - not_null
-          - unique_combination_of_columns:
-              combination_of_columns: ['asset', 'date']
       - name: close_price
         description: Closing price of the asset on the trading date (USD).
         tests:
@@ -33,3 +31,7 @@ models:
         description: 7-day rolling standard deviation of daily returns (volatility).
       - name: volume
         description: Daily trading volume for the asset.
+
+tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns: ['asset', 'date']
