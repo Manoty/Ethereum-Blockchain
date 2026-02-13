@@ -1,204 +1,594 @@
--- models/staging/stg_all_crypto.sql
--- Staging model: combines all crypto CSVs into one table
+{{ config(materialized='view') }}
 
-with all_data as (
+with all_crypto as (
 
-    select 'aave' as asset, date, open as open_price, high, low, close as close_price, volume
-    from read_csv_auto('seeds/aave.csv')
-
-    union all
-    select 'algorand', date, open, high, low, close, volume
-    from read_csv_auto('seeds/algorand.csv')
-
-    union all
-    select 'aptos', date, open, high, low, close, volume
-    from read_csv_auto('seeds/aptos.csv')
+    select
+        'aave' as asset,
+        cast(date as date) as date,
+        cast(open as double) as open_price,
+        cast(high as double) as high,
+        cast(low as double) as low,
+        cast(close as double) as close_price,
+        cast(volume as double) as volume
+    from {{ ref('aave') }}
 
     union all
-    select 'arbitrum', date, open, high, low, close, volume
-    from read_csv_auto('seeds/arbitrum.csv')
+
+    select
+        'algorand',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('algorand') }}
 
     union all
-    select 'avalanche', date, open, high, low, close, volume
-    from read_csv_auto('seeds/avalanche.csv')
+
+    select
+        'aptos',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('aptos') }}
 
     union all
-    select 'axie_infinity', date, open, high, low, close, volume
-    from read_csv_auto('seeds/axie_infinity.csv')
+
+    select
+        'arbitrum',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('arbitrum') }}
 
     union all
-    select 'binance_coin', date, open, high, low, close, volume
-    from read_csv_auto('seeds/binance_coin.csv')
+
+    select
+        'avalanche',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('avalanche') }}
 
     union all
-    select 'bitcoin', date, open, high, low, close, volume
-    from read_csv_auto('seeds/bitcoin.csv')
+
+    select
+        'axie_infinity',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('axie_infinity') }}
 
     union all
-    select 'bitcoin_cash', date, open, high, low, close, volume
-    from read_csv_auto('seeds/bitcoin_cash.csv')
+
+    select
+        'binance_coin',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('binance_coin') }}
 
     union all
-    select 'cardano', date, open, high, low, close, volume
-    from read_csv_auto('seeds/cardano.csv')
+
+    select
+        'bitcoin',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('bitcoin') }}
 
     union all
-    select 'chainlink', date, open, high, low, close, volume
-    from read_csv_auto('seeds/chainlink.csv')
+
+    select
+        'bitcoin_cash',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('bitcoin_cash') }}
 
     union all
-    select 'cosmos', date, open, high, low, close, volume
-    from read_csv_auto('seeds/cosmos.csv')
+
+    select
+        'cardano',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('cardano') }}
 
     union all
-    select 'decentraland', date, open, high, low, close, volume
-    from read_csv_auto('seeds/decentraland.csv')
+
+    select
+        'chainlink',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('chainlink') }}
 
     union all
-    select 'dogecoin', date, open, high, low, close, volume
-    from read_csv_auto('seeds/dogecoin.csv')
+
+    select
+        'cosmos',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('cosmos') }}
 
     union all
-    select 'eos', date, open, high, low, close, volume
-    from read_csv_auto('seeds/eos.csv')
+
+    select
+        'decentraland',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('decentraland') }}
 
     union all
-    select 'ethereum', date, open, high, low, close, volume
-    from read_csv_auto('seeds/ethereum.csv')
+
+    select
+        'dogecoin',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('dogecoin') }}
 
     union all
-    select 'fantom', date, open, high, low, close, volume
-    from read_csv_auto('seeds/fantom.csv')
+
+    select
+        'eos',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('eos') }}
 
     union all
-    select 'filecoin', date, open, high, low, close, volume
-    from read_csv_auto('seeds/filecoin.csv')
+
+    select
+        'ethereum',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('ethereum') }}
 
     union all
-    select 'flow', date, open, high, low, close, volume
-    from read_csv_auto('seeds/flow.csv')
+
+    select
+        'fantom',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('fantom') }}
 
     union all
-    select 'hedera', date, open, high, low, close, volume
-    from read_csv_auto('seeds/hedera.csv')
+
+    select
+        'filecoin',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('filecoin') }}
 
     union all
-    select 'immutable', date, open, high, low, close, volume
-    from read_csv_auto('seeds/immutable.csv')
+
+    select
+        'flow',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('flow') }}
 
     union all
-    select 'injective', date, open, high, low, close, volume
-    from read_csv_auto('seeds/injective.csv')
+
+    select
+        'hedera',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('hedera') }}
 
     union all
-    select 'internet_computer', date, open, high, low, close, volume
-    from read_csv_auto('seeds/internet_computer.csv')
+
+    select
+        'immutable',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('immutable') }}
 
     union all
-    select 'kaspa', date, open, high, low, close, volume
-    from read_csv_auto('seeds/kaspa.csv')
+
+    select
+        'injective',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('injective') }}
 
     union all
-    select 'lido', date, open, high, low, close, volume
-    from read_csv_auto('seeds/lido.csv')
+
+    select
+        'internet_computer',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('internet_computer') }}
 
     union all
-    select 'litecoin', date, open, high, low, close, volume
-    from read_csv_auto('seeds/litecoin.csv')
+
+    select
+        'kaspa',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('kaspa') }}
 
     union all
-    select 'maker', date, open, high, low, close, volume
-    from read_csv_auto('seeds/maker.csv')
+
+    select
+        'lido',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('lido') }}
 
     union all
-    select 'near', date, open, high, low, close, volume
-    from read_csv_auto('seeds/near.csv')
+
+    select
+        'litecoin',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('litecoin') }}
 
     union all
-    select 'optimism', date, open, high, low, close, volume
-    from read_csv_auto('seeds/optimism.csv')
+
+    select
+        'maker',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('maker') }}
 
     union all
-    select 'pepe', date, open, high, low, close, volume
-    from read_csv_auto('seeds/pepe.csv')
+
+    select
+        'near',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('near') }}
 
     union all
-    select 'polkadot', date, open, high, low, close, volume
-    from read_csv_auto('seeds/polkadot.csv')
+
+    select
+        'optimism',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('optimism') }}
 
     union all
-    select 'polygon', date, open, high, low, close, volume
-    from read_csv_auto('seeds/polygon.csv')
+
+    select
+        'pepe',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('pepe') }}
 
     union all
-    select 'render', date, open, high, low, close, volume
-    from read_csv_auto('seeds/render.csv')
+
+    select
+        'polkadot',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('polkadot') }}
 
     union all
-    select 'sandbox', date, open, high, low, close, volume
-    from read_csv_auto('seeds/sandbox.csv')
+
+    select
+        'polygon',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('polygon') }}
 
     union all
-    select 'shiba_inu', date, open, high, low, close, volume
-    from read_csv_auto('seeds/shiba_inu.csv')
+
+    select
+        'render',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('render') }}
 
     union all
-    select 'solana', date, open, high, low, close, volume
-    from read_csv_auto('seeds/solana.csv')
+
+    select
+        'sandbox',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('sandbox') }}
 
     union all
-    select 'stacks', date, open, high, low, close, volume
-    from read_csv_auto('seeds/stacks.csv')
+
+    select
+        'shiba_inu',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('shiba_inu') }}
 
     union all
-    select 'stellar', date, open, high, low, close, volume
-    from read_csv_auto('seeds/stellar.csv')
+
+    select
+        'solana',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('solana') }}
 
     union all
-    select 'sui', date, open, high, low, close, volume
-    from read_csv_auto('seeds/sui.csv')
+
+    select
+        'stacks',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('stacks') }}
 
     union all
-    select 'tether', date, open, high, low, close, volume
-    from read_csv_auto('seeds/tether.csv')
+
+    select
+        'stellar',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('stellar') }}
 
     union all
-    select 'tezos', date, open, high, low, close, volume
-    from read_csv_auto('seeds/tezos.csv')
+
+    select
+        'sui',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('sui') }}
 
     union all
-    select 'theta', date, open, high, low, close, volume
-    from read_csv_auto('seeds/theta.csv')
+
+    select
+        'tether',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('tether') }}
 
     union all
-    select 'the_graph', date, open, high, low, close, volume
-    from read_csv_auto('seeds/the_graph.csv')
+
+    select
+        'tezos',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('tezos') }}
 
     union all
-    select 'toncoin', date, open, high, low, close, volume
-    from read_csv_auto('seeds/toncoin.csv')
+
+    select
+        'theta',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('theta') }}
 
     union all
-    select 'tron', date, open, high, low, close, volume
-    from read_csv_auto('seeds/tron.csv')
+
+    select
+        'the_graph',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('the_graph') }}
 
     union all
-    select 'uniswap', date, open, high, low, close, volume
-    from read_csv_auto('seeds/uniswap.csv')
+
+    select
+        'toncoin',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('toncoin') }}
 
     union all
-    select 'usd_coin', date, open, high, low, close, volume
-    from read_csv_auto('seeds/usd_coin.csv')
+
+    select
+        'tron',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('tron') }}
 
     union all
-    select 'vechain', date, open, high, low, close, volume
-    from read_csv_auto('seeds/vechain.csv')
+
+    select
+        'uniswap',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('uniswap') }}
 
     union all
-    select 'xrp', date, open, high, low, close, volume
-    from read_csv_auto('seeds/xrp.csv')
+
+    select
+        'usd_coin',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('usd_coin') }}
+
+    union all
+
+    select
+        'vechain',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('vechain') }}
+
+    union all
+
+    select
+        'xrp',
+        cast(date as date),
+        cast(open as double),
+        cast(high as double),
+        cast(low as double),
+        cast(close as double),
+        cast(volume as double)
+    from {{ ref('xrp') }}
 
 )
 
 select *
-from all_data
+from all_crypto
