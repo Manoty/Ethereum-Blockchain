@@ -1,63 +1,48 @@
 version: 2
 
 models:
-  - name: stg_all_crypto
-    description: "Staging table that unions all seed CSVs for top 50 cryptocurrencies."
-    columns:
-      - name: asset
-        description: "Ticker of the cryptocurrency, e.g., BTC-USD."
-      - name: date
-        description: "Trading date (UTC)."
-      - name: open_price
-        description: "Opening price for the day in USD."
-      - name: high_price
-        description: "Highest price for the day in USD."
-      - name: low_price
-        description: "Lowest price for the day in USD."
-      - name: close_price
-        description: "Closing price for the day in USD."
-      - name: volume
-        description: "Daily trading volume."
-
   - name: int_crypto_features
-    description: "Intermediate model that adds features to crypto data such as returns and basic metrics."
+    description: "Intermediate features for each crypto asset, derived from stg_all_crypto"
     columns:
       - name: asset
-        description: "Ticker of the cryptocurrency."
+        description: "The crypto asset identifier (e.g., BTC-USD)"
+        tests:
+          - not_null
       - name: date
-        description: "Trading date."
+        description: "Trading date"
+        tests:
+          - not_null
       - name: close_price
-        description: "Closing price of the asset."
+        description: "Closing price of the asset on this date"
+        tests:
+          - not_null
       - name: daily_return
-        description: "Daily return of the asset calculated from close prices."
+        description: "Daily return for the asset"
+        tests:
+          - not_null
 
   - name: int_daily_asset_metrics
-    description: "Final intermediate model calculating daily returns, 7-day & 30-day moving averages, and rolling volatility."
+    description: "Daily metrics per crypto asset, including moving averages and volatility"
     columns:
       - name: asset
-        description: "Ticker of the cryptocurrency."
+        description: "Crypto asset identifier"
+        tests:
+          - not_null
       - name: date
-        description: "Trading date."
+        description: "Trading date"
+        tests:
+          - not_null
       - name: close_price
-        description: "Closing price of the asset."
+        description: "Closing price"
+        tests:
+          - not_null
       - name: daily_return
-        description: "Daily return of the asset."
+        description: "Daily return for the asset"
+        tests:
+          - not_null
       - name: ma_7
-        description: "7-day moving average of closing prices."
+        description: "7-day moving average of close_price"
       - name: ma_30
-        description: "30-day moving average of closing prices."
+        description: "30-day moving average of close_price"
       - name: volatility_7
-        description: "7-day rolling volatility (standard deviation of daily returns)."
-
-tests:
-  - name: int_daily_asset_metrics
-    columns:
-      - name: asset
-        tests:
-          - not_null
-      - name: date
-        tests:
-          - not_null
-      - name: close_price
-        tests:
-          - not_null
+        description: "7-day rolling volatility (stddev of daily_return)"
