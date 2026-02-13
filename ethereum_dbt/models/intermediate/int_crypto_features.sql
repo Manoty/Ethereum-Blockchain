@@ -1,59 +1,31 @@
-{{ config(materialized='view') }}
+-- models/intermediate/int_crypto_features.sql
+-- Intermediate features: daily return, log return, simple transformations
 
--- Intermediate crypto features: daily returns, moving averages, volatility
 with base as (
-
-    select *
-    from {{ ref('stg_all_crypto') }}
-
-),
-
-returns as (
 
     select
         asset,
         date,
+        open_price,
         close_price,
+        high,
+        low,
         volume,
+        -- daily return: (close - open) / open
+        case 
+            when open_price is not null and open_price != 0 then (close_price - open_price) / open_price
+            else null
+        end as daily_return,
+        -- log return: ln(close / open)
+        case 
+            when open_price is not null and open_price > 0 and close_price is not null and close_price > 0
+            then ln(close_price / open_price)
+            else null
+        end as log_return
 
-        -- Daily return
-        (close_price - lag(close_price) over (partition by asset order by date))
-        / lag(close_price) over (partition by asset order by date) as daily_return
-
-    from base
-
-),
-
-moving_averages as (
-
-    select
-        *,
-        
-        -- 7-day moving average of close price
-        avg(close_price) over (
-            partition by asset
-            order by date
-            rows between 6 preceding and current row
-        ) as ma_7,
-
-        -- 30-day moving average of close price
-        avg(close_price) over (
-            partition by asset
-            order by date
-            rows between 29 preceding and current row
-        ) as ma_30,
-
-        -- 7-day rolling volatility (standard deviation of daily returns)
-        stddev(daily_return) over (
-            partition by asset
-            order by date
-            rows between 6 preceding and current row
-        ) as volatility_7
-
-    from returns
+    from {{ ref('stg_all_crypto') }}
 
 )
 
 select *
-from moving_averages
-order by asset, date
+from base
