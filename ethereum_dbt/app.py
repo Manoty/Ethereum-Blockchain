@@ -209,7 +209,33 @@ else:
     st.info("Select at least one metric to display.")
 
 # ------------------------------
-# 1️⃣2️⃣ Download Filtered Data
+# 1️⃣2️⃣ Portfolio Sparklines per Asset
+# ------------------------------
+st.subheader("Portfolio Sparklines by Asset")
+
+for asset in selected_assets:
+    df_asset = df[df['asset'] == asset].sort_values("date")
+    if df_asset.empty:
+        continue
+
+    fig_spark = px.line(
+        df_asset,
+        x="date",
+        y="daily_return",
+        title=f"{asset} Daily Return",
+        height=150
+    )
+    fig_spark.update_traces(line=dict(width=2), hovertemplate="%{x|%Y-%m-%d}<br>Daily Return: %{y:.2%}<extra></extra>")
+    fig_spark.update_layout(
+        showlegend=False,
+        margin=dict(l=20, r=20, t=20, b=20),
+        xaxis=dict(showticklabels=False),
+        yaxis=dict(showticklabels=True, tickformat=".2%")
+    )
+    st.plotly_chart(fig_spark, use_container_width=True)
+
+# ------------------------------
+# 1️⃣3️⃣ Download Filtered Data
 # ------------------------------
 st.subheader("Download Filtered Data")
 csv_data = df.to_csv(index=False).encode('utf-8')
