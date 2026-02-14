@@ -209,29 +209,47 @@ else:
     st.info("Select at least one metric to display.")
 
 # ------------------------------
-# 1️⃣2️⃣ Portfolio Sparklines per Asset
+# 1️⃣2️⃣ Portfolio Sparklines per Asset (Conditional Coloring)
 # ------------------------------
-st.subheader("Portfolio Sparklines by Asset")
+st.subheader("Portfolio Sparklines by Asset (Positive = Green, Negative = Red)")
 
 for asset in selected_assets:
     df_asset = df[df['asset'] == asset].sort_values("date")
     if df_asset.empty:
         continue
 
-    fig_spark = px.line(
-        df_asset,
-        x="date",
-        y="daily_return",
-        title=f"{asset} Daily Return",
-        height=150
-    )
-    fig_spark.update_traces(line=dict(width=2), hovertemplate="%{x|%Y-%m-%d}<br>Daily Return: %{y:.2%}<extra></extra>")
+    # Split into positive and negative returns
+    pos_df = df_asset[df_asset['daily_return'] >= 0]
+    neg_df = df_asset[df_asset['daily_return'] < 0]
+
+    fig_spark = go.Figure()
+
+    # Positive returns in green
+    fig_spark.add_trace(go.Scatter(
+        x=pos_df['date'],
+        y=pos_df['daily_return'],
+        mode='lines',
+        line=dict(color='green', width=2),
+        hovertemplate="%{x|%Y-%m-%d}<br>Daily Return: %{y:.2%}<extra></extra>"
+    ))
+
+    # Negative returns in red
+    fig_spark.add_trace(go.Scatter(
+        x=neg_df['date'],
+        y=neg_df['daily_return'],
+        mode='lines',
+        line=dict(color='red', width=2),
+        hovertemplate="%{x|%Y-%m-%d}<br>Daily Return: %{y:.2%}<extra></extra>"
+    ))
+
     fig_spark.update_layout(
         showlegend=False,
         margin=dict(l=20, r=20, t=20, b=20),
+        height=150,
         xaxis=dict(showticklabels=False),
         yaxis=dict(showticklabels=True, tickformat=".2%")
     )
+
     st.plotly_chart(fig_spark, use_container_width=True)
 
 # ------------------------------
