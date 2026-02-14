@@ -40,6 +40,10 @@ if isinstance(selected_dates, (tuple, list)) and len(selected_dates) == 2:
 else:
     start_date = end_date = selected_dates
 
+# --- FIX: convert to YYYY-MM-DD strings for DuckDB ---
+start_date_str = start_date.strftime("%Y-%m-%d")
+end_date_str = end_date.strftime("%Y-%m-%d")
+
 # ------------------------------
 # 3️⃣ Query the filtered data
 # ------------------------------
@@ -47,7 +51,7 @@ query = f"""
 SELECT date, asset, close_price, open_price, high, low, volume, daily_return, log_return
 FROM int_crypto_features
 WHERE asset IN ({','.join([f"'{a}'" for a in selected_assets])})
-  AND date BETWEEN '{start_date}' AND '{end_date}'
+  AND date BETWEEN '{start_date_str}' AND '{end_date_str}'
 ORDER BY asset, date
 """
 df = conn.execute(query).df()
@@ -142,7 +146,7 @@ metrics = st.multiselect(
 if metrics:
     use_secondary_y = "volume" in metrics
     fig_multi = make_subplots(specs=[[{"secondary_y": use_secondary_y}]])
-
+    
     for metric in metrics:
         for asset in df['asset'].unique():
             df_asset = df[df['asset'] == asset]
@@ -166,19 +170,18 @@ if metrics:
                     ),
                     secondary_y=False
                 )
-
+    
     fig_multi.update_layout(
         title_text="Selected Metrics Over Time (Dual Y-Axis)",
         xaxis_title="Date"
     )
-
+    
     if use_secondary_y:
         fig_multi.update_yaxes(title_text="Returns", secondary_y=False)
         fig_multi.update_yaxes(title_text="Volume", secondary_y=True)
     else:
         fig_multi.update_yaxes(title_text="Returns")
-
+    
     st.plotly_chart(fig_multi, width="stretch")
-
 else:
     st.info("Select at least one metric to display.")
