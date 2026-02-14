@@ -92,8 +92,14 @@ fig_return = px.line(
     y="daily_return",
     color="asset",
     labels={"daily_return": "Daily Return", "date": "Date"},
-    title="Daily Return Trends"
+    title="Daily Return Trends",
+    hover_data={
+        "daily_return": ":.2%",
+        "date": "|%Y-%m-%d",
+        "asset": True
+    }
 )
+fig_return.update_yaxes(tickformat=".2%")
 st.plotly_chart(fig_return, width="stretch")
 
 # ------------------------------
@@ -106,8 +112,14 @@ fig_ma = px.line(
     y="daily_return_7d_ma",
     color="asset",
     labels={"daily_return_7d_ma": "7-Day MA Daily Return", "date": "Date"},
-    title="Smoothed Daily Return Trends"
+    title="Smoothed Daily Return Trends",
+    hover_data={
+        "daily_return_7d_ma": ":.2%",
+        "date": "|%Y-%m-%d",
+        "asset": True
+    }
 )
+fig_ma.update_yaxes(tickformat=".2%")
 st.plotly_chart(fig_ma, width="stretch")
 
 # ------------------------------
@@ -120,8 +132,14 @@ fig_log = px.line(
     y="log_return",
     color="asset",
     labels={"log_return": "Log Return", "date": "Date"},
-    title="Log Return Trends"
+    title="Log Return Trends",
+    hover_data={
+        "log_return": ":.2%",
+        "date": "|%Y-%m-%d",
+        "asset": True
+    }
 )
+fig_log.update_yaxes(tickformat=".2%")
 st.plotly_chart(fig_log, width="stretch")
 
 # ------------------------------
@@ -134,8 +152,14 @@ fig_volume = px.line(
     y="volume",
     color="asset",
     labels={"volume": "Volume", "date": "Date"},
-    title="Trading Volume Trends"
+    title="Trading Volume Trends",
+    hover_data={
+        "volume": ":,",
+        "date": "|%Y-%m-%d",
+        "asset": True
+    }
 )
+fig_volume.update_yaxes(tickformat=",")
 st.plotly_chart(fig_volume, width="stretch")
 
 # ------------------------------
@@ -156,26 +180,17 @@ if metrics:
     for metric in metrics:
         for asset in df['asset'].unique():
             df_asset = df[df['asset'] == asset]
-            if metric == "volume":
-                fig_multi.add_trace(
-                    go.Scatter(
-                        x=df_asset['date'],
-                        y=df_asset[metric],
-                        mode='lines',
-                        name=f"{asset} - {metric}"
-                    ),
-                    secondary_y=True
-                )
-            else:
-                fig_multi.add_trace(
-                    go.Scatter(
-                        x=df_asset['date'],
-                        y=df_asset[metric],
-                        mode='lines',
-                        name=f"{asset} - {metric}"
-                    ),
-                    secondary_y=False
-                )
+            hover_fmt = ":.2%" if "return" in metric else ":,"
+            fig_multi.add_trace(
+                go.Scatter(
+                    x=df_asset['date'],
+                    y=df_asset[metric],
+                    mode='lines',
+                    name=f"{asset} - {metric}",
+                    hovertemplate=f"%{{x|%Y-%m-%d}}<br>{metric}: %{{y{hover_fmt}}}<br>Asset: {asset}"
+                ),
+                secondary_y=(metric=="volume")
+            )
 
     fig_multi.update_layout(
         title_text="Selected Metrics Over Time (Dual Y-Axis)",
@@ -183,12 +198,24 @@ if metrics:
     )
 
     if use_secondary_y:
-        fig_multi.update_yaxes(title_text="Returns", secondary_y=False)
-        fig_multi.update_yaxes(title_text="Volume", secondary_y=True)
+        fig_multi.update_yaxes(title_text="Returns", secondary_y=False, tickformat=".2%")
+        fig_multi.update_yaxes(title_text="Volume", secondary_y=True, tickformat=",")
     else:
-        fig_multi.update_yaxes(title_text="Returns")
+        fig_multi.update_yaxes(title_text="Returns", tickformat=".2%")
 
     st.plotly_chart(fig_multi, width="stretch")
 
 else:
     st.info("Select at least one metric to display.")
+
+# ------------------------------
+# 1️⃣2️⃣ Download Filtered Data
+# ------------------------------
+st.subheader("Download Filtered Data")
+csv_data = df.to_csv(index=False).encode('utf-8')
+st.download_button(
+    label="Download CSV",
+    data=csv_data,
+    file_name="filtered_crypto_data.csv",
+    mime="text/csv"
+)
