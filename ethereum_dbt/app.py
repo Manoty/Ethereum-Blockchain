@@ -32,7 +32,6 @@ selected_dates = st.sidebar.date_input(
     max_value=max_date
 )
 
-# Ensure we always have start_date and end_date
 if isinstance(selected_dates, (tuple, list)):
     start_date, end_date = selected_dates
 else:
@@ -42,7 +41,7 @@ else:
 # 3️⃣ Query the filtered data
 # ------------------------------
 query = f"""
-SELECT date, asset, close_price, daily_return, volume
+SELECT date, asset, close_price, daily_return, log_return, volume
 FROM int_crypto_features
 WHERE asset IN ({','.join([f"'{a}'" for a in selected_assets])})
   AND date BETWEEN '{start_date}' AND '{end_date}'
@@ -57,16 +56,21 @@ df.columns = [c.lower() for c in df.columns]
 df['date'] = pd.to_datetime(df['date'])
 
 # ------------------------------
-# 5️⃣ Dashboard Title & Summary
+# 5️⃣ Calculate 7-Day Moving Average
+# ------------------------------
+df = df.sort_values(['asset', 'date'])
+df['daily_return_7d_ma'] = df.groupby('asset')['daily_return'].transform(lambda x: x.rolling(7, min_periods=1).mean())
+
+# ------------------------------
+# 6️⃣ Dashboard Title & Summary
 # ------------------------------
 st.title("📊 Crypto Daily Metrics Dashboard")
-
 st.subheader("Summary Metrics")
 st.write("Total Records:", len(df))
 st.write("Average Daily Return:", round(df['daily_return'].mean(), 6))
 
 # ------------------------------
-# 6️⃣ Daily Return Plot
+# 7️⃣ Daily Return Plot
 # ------------------------------
 st.subheader("Daily Return Over Time")
 fig_return = px.line(
@@ -80,7 +84,35 @@ fig_return = px.line(
 st.plotly_chart(fig_return, width="stretch")
 
 # ------------------------------
-# 7️⃣ Volume Plot
+# 8️⃣ 7-Day Moving Average Plot
+# ------------------------------
+st.subheader("7-Day Moving Average of Daily Return")
+fig_ma = px.line(
+    df,
+    x="date",
+    y="daily_return_7d_ma",
+    color="asset",
+    labels={"daily_return_7d_ma": "7-Day MA Daily Return", "date": "Date"},
+    title="Smoothed Daily Return Trends"
+)
+st.plotly_chart(fig_ma, width="stretch")
+
+# ------------------------------
+# 9️⃣ Log Return Plot
+# ------------------------------
+st.subheader("Log Return Over Time")
+fig_log = px.line(
+    df,
+    x="date",
+    y="log_return",
+    color="asset",
+    labels={"log_return": "Log Return", "date": "Date"},
+    title="Log Return Trends"
+)
+st.plotly_chart(fig_log, width="stretch")
+
+# ------------------------------
+# 🔟 Volume Plot
 # ------------------------------
 st.subheader("Volume Over Time")
 fig_volume = px.line(
