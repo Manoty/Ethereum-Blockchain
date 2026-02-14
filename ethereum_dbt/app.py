@@ -21,7 +21,7 @@ all_assets = assets_df['asset'].tolist()
 
 selected_assets = st.sidebar.multiselect("Select Assets", all_assets, default=all_assets[:5])
 
-# Date range picker
+# Get min and max dates
 min_date, max_date = conn.execute("SELECT MIN(date), MAX(date) FROM int_crypto_features").fetchone()
 start_date, end_date = st.sidebar.date_input(
     "Date Range",
@@ -42,30 +42,45 @@ ORDER BY asset, date
 """
 df = conn.execute(query).df()
 
-# Convert date to datetime
+# ------------------------------
+# 4️⃣ Fix Column Names
+# ------------------------------
+df.columns = [c.lower() for c in df.columns]
 df['date'] = pd.to_datetime(df['date'])
 
+# ------------------------------
+# 5️⃣ Dashboard Title & Summary
+# ------------------------------
 st.title("📊 Crypto Daily Metrics Dashboard")
 
-# ------------------------------
-# 4️⃣ Summary Metrics
-# ------------------------------
 st.subheader("Summary Metrics")
 st.write("Total Records:", len(df))
 st.write("Average Daily Return:", round(df['daily_return'].mean(), 6))
 
 # ------------------------------
-# 5️⃣ Daily Return Over Time
+# 6️⃣ Daily Return Plot
 # ------------------------------
 st.subheader("Daily Return Over Time")
-fig_return = px.line(df, x="date", y="daily_return", color="asset",
-                     labels={"daily_return": "Daily Return", "date": "Date"})
-st.plotly_chart(fig_return, use_container_width=True)
+fig_return = px.line(
+    df,
+    x="date",
+    y="daily_return",
+    color="asset",
+    labels={"daily_return": "Daily Return", "date": "Date"},
+    title="Daily Return Trends"
+)
+st.plotly_chart(fig_return, width="stretch")
 
 # ------------------------------
-# 6️⃣ Volume Over Time
+# 7️⃣ Volume Plot
 # ------------------------------
 st.subheader("Volume Over Time")
-fig_volume = px.line(df, x="date", y="volume", color="asset",
-                     labels={"volume": "Volume", "date": "Date"})
-st.plotly_chart(fig_volume, use_container_width=True)
+fig_volume = px.line(
+    df,
+    x="date",
+    y="volume",
+    color="asset",
+    labels={"volume": "Volume", "date": "Date"},
+    title="Trading Volume Trends"
+)
+st.plotly_chart(fig_volume, width="stretch")
