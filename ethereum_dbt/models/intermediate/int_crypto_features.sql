@@ -1,13 +1,35 @@
-import os
-import duckdb
-import streamlit as st
+with base as (
 
-db_path = r"C:\kev\Ethereum_Blockchain\eth_blockchain\ethereum_dbt\dev.duckdb"
+    select
+        asset,
+        date,
+        open_price,
+        close_price,
+        high,
+        low,
+        volume,
 
-st.write("Database path:", db_path)
-st.write("File exists:", os.path.exists(db_path))
+        case
+            when open_price > 0
+            then (close_price - open_price) / open_price
+            else null
+        end as daily_return,
 
-conn = duckdb.connect(db_path, read_only=True)
+        case
+            when open_price > 0
+             and close_price > 0
+            then ln(close_price / open_price)
+            else null
+        end as log_return
 
-count = conn.execute("SELECT COUNT(*) FROM int_crypto_features").fetchone()[0]
-st.write("Row count in int_crypto_features:", count)
+    from {{ ref('stg_all_crypto') }}
+
+    -- 🔥 CLEAN BAD ROWS
+    where open_price > 0
+      and close_price > 0
+      and volume > 0
+
+)
+
+select *
+from base
