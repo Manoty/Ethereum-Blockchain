@@ -1,12 +1,13 @@
+import os
 import duckdb
 import streamlit as st
 
-conn = duckdb.connect("dev.duckdb", read_only=True)
+db_path = r"C:\kev\Ethereum_Blockchain\eth_blockchain\ethereum_dbt\dev.duckdb"
 
-df = conn.execute("""
-    SELECT *
-    FROM int_crypto_features
-    LIMIT 10
-""").df()
+st.write("Database path:", db_path)
+st.write("File exists:", os.path.exists(db_path))
 
-st.write(df)
+conn = duckdb.connect(db_path, read_only=True)
+
+count = conn.execute("SELECT COUNT(*) FROM int_crypto_features").fetchone()[0]
+st.write("Row count in int_crypto_features:", count)
