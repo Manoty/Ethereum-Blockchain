@@ -1,32 +1,12 @@
-with base as (
+import duckdb
+import streamlit as st
 
-    select
-        asset,
-        date,
-        open_price,
-        close_price,
-        high_price,
-        low_price,
-        volume,
+conn = duckdb.connect("dev.duckdb", read_only=True)
 
-        -- daily return
-        case
-            when open_price > 0
-            then (close_price - open_price) / open_price
-            else null
-        end as daily_return,
+df = conn.execute("""
+    SELECT *
+    FROM int_crypto_features
+    LIMIT 10
+""").df()
 
-        -- log return
-        case
-            when open_price > 0
-             and close_price > 0
-            then ln(close_price / open_price)
-            else null
-        end as log_return
-
-    from {{ ref('stg_all_crypto') }}
-
-)
-
-select *
-from base
+st.write(df)
