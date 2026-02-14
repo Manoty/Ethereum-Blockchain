@@ -1,59 +1,71 @@
+# app.py
 import streamlit as st
 import duckdb
 import pandas as pd
-import altair as alt
+import plotly.express as px
 
-# --- Connect to DuckDB database ---
-conn = duckdb.connect(
-    r"C:\kev\Ethereum_Blockchain\eth_blockchain\ethereum_dbt\dev.duckdb"
+# ------------------------------
+# 1️⃣ Connect to DuckDB
+# ------------------------------
+DB_PATH = r"C:\kev\Ethereum_Blockchain\eth_blockchain\ethereum_dbt\dev.duckdb"
+conn = duckdb.connect(DB_PATH, read_only=True)
+
+# ------------------------------
+# 2️⃣ Sidebar Controls
+# ------------------------------
+st.sidebar.header("Select Assets & Date Range")
+
+# Get distinct assets from the table
+assets_df = conn.execute("SELECT DISTINCT asset FROM int_crypto_features ORDER BY asset").df()
+all_assets = assets_df['asset'].tolist()
+
+selected_assets = st.sidebar.multiselect("Select Assets", all_assets, default=all_assets[:5])
+
+# Date range picker
+min_date, max_date = conn.execute("SELECT MIN(date), MAX(date) FROM int_crypto_features").fetchone()
+start_date, end_date = st.sidebar.date_input(
+    "Date Range",
+    [min_date, max_date],
+    min_value=min_date,
+    max_value=max_date
 )
-st.set_page_config(page_title="Crypto Dashboard", layout="wide")
+
+# ------------------------------
+# 3️⃣ Query the filtered data
+# ------------------------------
+query = f"""
+SELECT date, asset, close_price, daily_return, volume
+FROM int_crypto_features
+WHERE asset IN ({','.join([f"'{a}'" for a in selected_assets])})
+  AND date BETWEEN '{start_date}' AND '{end_date}'
+ORDER BY asset, date
+"""
+df = conn.execute(query).df()
+
+# Convert date to datetime
+df['date'] = pd.to_datetime(df['date'])
+
 st.title("📊 Crypto Daily Metrics Dashboard")
 
-# --- Sidebar filters ---
-assets = conn.execute("SELECT DISTINCT asset FROM main.fct_crypto_daily").fetchall()
-assets = [a[0] for a in assets]
-
-selected_assets = st.sidebar.multiselect(
-    "Select Assets", options=assets, default=assets[:5]
-)
-
-date_range = st.sidebar.date_input(
-    "Date Range",
-    value=[pd.to_datetime("2023-01-01"), pd.to_datetime("2023-12-31")]
-)
-
-# --- Query filtered data ---
-query = f"""
-SELECT *
-FROM main.fct_crypto_daily
-WHERE asset IN ({','.join([f"'{a}'" for a in selected_assets])})
-  AND date BETWEEN '{date_range[0]}' AND '{date_range[1]}'
-ORDER BY date
-"""
-
-df = conn.execute(query).fetchdf()
-
-# --- Metrics ---
+# ------------------------------
+# 4️⃣ Summary Metrics
+# ------------------------------
 st.subheader("Summary Metrics")
-st.metric("Total Records", len(df))
-st.metric("Average Daily Return", round(df['daily_return'].mean(), 4))
+st.write("Total Records:", len(df))
+st.write("Average Daily Return:", round(df['daily_return'].mean(), 6))
 
-# --- Charts ---
+# ------------------------------
+# 5️⃣ Daily Return Over Time
+# ------------------------------
 st.subheader("Daily Return Over Time")
-chart = alt.Chart(df).mark_line().encode(
-    x='date:T',
-    y='daily_return:Q',
-    color='asset:N'
-).interactive()
+fig_return = px.line(df, x="date", y="daily_return", color="asset",
+                     labels={"daily_return": "Daily Return", "date": "Date"})
+st.plotly_chart(fig_return, use_container_width=True)
 
-st.altair_chart(chart, use_container_width=True)
-
+# ------------------------------
+# 6️⃣ Volume Over Time
+# ------------------------------
 st.subheader("Volume Over Time")
-volume_chart = alt.Chart(df).mark_bar().encode(
-    x='date:T',
-    y='volume:Q',
-    color='asset:N'
-).interactive()
-
-st.altair_chart(volume_chart, use_container_width=True)
+fig_volume = px.line(df, x="date", y="volume", color="asset",
+                     labels={"volume": "Volume", "date": "Date"})
+st.plotly_chart(fig_volume, use_container_width=True)
