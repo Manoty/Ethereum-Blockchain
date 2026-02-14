@@ -17,20 +17,25 @@ conn = duckdb.connect(DB_PATH, read_only=True)
 # ------------------------------
 st.sidebar.header("Select Assets & Date Range")
 
-# Get distinct assets
+# Get distinct assets from the table
 assets_df = conn.execute("SELECT DISTINCT asset FROM int_crypto_features ORDER BY asset").df()
 all_assets = assets_df['asset'].tolist()
+
 selected_assets = st.sidebar.multiselect("Select Assets", all_assets, default=all_assets[:5])
 
-# Get min and max dates
+# Get min and max dates from the DB
 min_date_raw, max_date_raw = conn.execute("SELECT MIN(date), MAX(date) FROM int_crypto_features").fetchone()
 min_date = pd.to_datetime(min_date_raw).date()
 max_date = pd.to_datetime(max_date_raw).date()
 
-# Date picker with proper min/max
+# Default to last 30 days
+default_start = max(min_date, max_date - pd.Timedelta(days=30))
+default_end = max_date
+
+# Date picker with proper min/max and defaults
 selected_dates = st.sidebar.date_input(
     "Date Range",
-    value=[min_date, max_date],
+    value=[default_start, default_end],
     min_value=min_date,
     max_value=max_date
 )
@@ -147,6 +152,7 @@ metrics = st.multiselect(
 if metrics:
     use_secondary_y = "volume" in metrics
     fig_multi = make_subplots(specs=[[{"secondary_y": use_secondary_y}]])
+
     for metric in metrics:
         for asset in df['asset'].unique():
             df_asset = df[df['asset'] == asset]
@@ -170,15 +176,19 @@ if metrics:
                     ),
                     secondary_y=False
                 )
+
     fig_multi.update_layout(
         title_text="Selected Metrics Over Time (Dual Y-Axis)",
         xaxis_title="Date"
     )
+
     if use_secondary_y:
         fig_multi.update_yaxes(title_text="Returns", secondary_y=False)
         fig_multi.update_yaxes(title_text="Volume", secondary_y=True)
     else:
         fig_multi.update_yaxes(title_text="Returns")
+
     st.plotly_chart(fig_multi, width="stretch")
+
 else:
     st.info("Select at least one metric to display.")
