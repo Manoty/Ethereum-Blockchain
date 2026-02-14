@@ -75,9 +75,19 @@ df = df.sort_values(['asset', 'date'])
 df['daily_return_7d_ma'] = df.groupby('asset')['daily_return'].transform(lambda x: x.rolling(7, min_periods=1).mean())
 
 # ------------------------------
-# 6️⃣ Dashboard Title & Summary
+# 6️⃣ Dashboard Title, Short Description & Summary
 # ------------------------------
 st.title("📊 Crypto Daily Metrics Dashboard")
+
+st.markdown(
+    """
+    **Quick overview:** This dashboard shows per-asset daily performance and volume trends.
+    - Use the sidebar to choose assets and a date range.  
+    - The charts below include raw daily returns, a 7-day moving average (smoother trend), log returns, and trading volume.
+    - Use the interactive multi-metric plot to compare different metrics on one chart (volume will be shown on a secondary axis).
+    """
+)
+
 st.subheader("Summary Metrics")
 st.write("Total Records:", len(df))
 st.write("Average Daily Return:", round(df['daily_return'].mean(), 6))
@@ -85,7 +95,7 @@ st.write("Average Daily Return:", round(df['daily_return'].mean(), 6))
 # ------------------------------
 # 7️⃣ Daily Return Plot
 # ------------------------------
-st.subheader("Daily Return Over Time")
+st.markdown("**Daily Return Over Time** — shows the day-to-day percentage change `((close - open)/open)` for each selected asset.")
 fig_return = px.line(
     df,
     x="date",
@@ -105,7 +115,7 @@ st.plotly_chart(fig_return, width="stretch")
 # ------------------------------
 # 8️⃣ 7-Day Moving Average Plot
 # ------------------------------
-st.subheader("7-Day Moving Average of Daily Return")
+st.markdown("**7-Day Moving Average** — the 7-day rolling mean of daily returns. Use this to see smoother trends and reduce noise.")
 fig_ma = px.line(
     df,
     x="date",
@@ -125,7 +135,7 @@ st.plotly_chart(fig_ma, width="stretch")
 # ------------------------------
 # 9️⃣ Log Return Plot
 # ------------------------------
-st.subheader("Log Return Over Time")
+st.markdown("**Log Return** — the continuous return `ln(close/open)`. Useful for certain risk calculations and aggregation.")
 fig_log = px.line(
     df,
     x="date",
@@ -145,7 +155,7 @@ st.plotly_chart(fig_log, width="stretch")
 # ------------------------------
 # 🔟 Volume Plot
 # ------------------------------
-st.subheader("Volume Over Time")
+st.markdown("**Volume Over Time** — trading volume per asset. Often used to confirm the strength of price moves.")
 fig_volume = px.line(
     df,
     x="date",
@@ -165,8 +175,7 @@ st.plotly_chart(fig_volume, width="stretch")
 # ------------------------------
 # 1️⃣1️⃣ Multi-Metric Toggle Plot with Dual Y-Axis
 # ------------------------------
-st.subheader("Interactive Multi-Metric Plot (Dual Y-Axis)")
-
+st.markdown("**Interactive Multi-Metric Chart** — pick metrics to overlay. Volume appears on the secondary axis when selected.")
 metrics = st.multiselect(
     "Select Metrics to Display",
     options=["daily_return", "daily_return_7d_ma", "log_return", "volume"],
@@ -189,7 +198,7 @@ if metrics:
                     name=f"{asset} - {metric}",
                     hovertemplate=f"%{{x|%Y-%m-%d}}<br>{metric}: %{{y{hover_fmt}}}<br>Asset: {asset}"
                 ),
-                secondary_y=(metric=="volume")
+                secondary_y=(metric == "volume")
             )
 
     fig_multi.update_layout(
@@ -204,15 +213,13 @@ if metrics:
         fig_multi.update_yaxes(title_text="Returns", tickformat=".2%")
 
     st.plotly_chart(fig_multi, width="stretch")
-
 else:
     st.info("Select at least one metric to display.")
 
 # ------------------------------
 # 1️⃣2️⃣ Portfolio Sparklines per Asset (Conditional Coloring)
 # ------------------------------
-st.subheader("Portfolio Sparklines by Asset (Positive = Green, Negative = Red)")
-
+st.markdown("**Sparklines by Asset** — compact daily-return mini-charts. Green = positive day, Red = negative day.")
 for asset in selected_assets:
     df_asset = df[df['asset'] == asset].sort_values("date")
     if df_asset.empty:
@@ -250,12 +257,13 @@ for asset in selected_assets:
         yaxis=dict(showticklabels=True, tickformat=".2%")
     )
 
-    st.plotly_chart(fig_spark, use_container_width=True)
+    st.plotly_chart(fig_spark, width="stretch")
 
 # ------------------------------
 # 1️⃣3️⃣ Download Filtered Data
 # ------------------------------
 st.subheader("Download Filtered Data")
+st.markdown("Download the currently filtered dataset (CSV) for offline analysis or sharing.")
 csv_data = df.to_csv(index=False).encode('utf-8')
 st.download_button(
     label="Download CSV",
