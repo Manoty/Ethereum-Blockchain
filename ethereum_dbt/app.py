@@ -17,16 +17,17 @@ conn = duckdb.connect(DB_PATH, read_only=True)
 # ------------------------------
 st.sidebar.header("Select Assets & Date Range")
 
-# Get distinct assets from the table
+# Get distinct assets
 assets_df = conn.execute("SELECT DISTINCT asset FROM int_crypto_features ORDER BY asset").df()
 all_assets = assets_df['asset'].tolist()
-
 selected_assets = st.sidebar.multiselect("Select Assets", all_assets, default=all_assets[:5])
 
 # Get min and max dates
-min_date, max_date = conn.execute("SELECT MIN(date), MAX(date) FROM int_crypto_features").fetchone()
+min_date_raw, max_date_raw = conn.execute("SELECT MIN(date), MAX(date) FROM int_crypto_features").fetchone()
+min_date = pd.to_datetime(min_date_raw).date()
+max_date = pd.to_datetime(max_date_raw).date()
 
-# Date range picker safely handles single or multiple selections
+# Date picker with proper min/max
 selected_dates = st.sidebar.date_input(
     "Date Range",
     value=[min_date, max_date],
@@ -34,13 +35,13 @@ selected_dates = st.sidebar.date_input(
     max_value=max_date
 )
 
-# Ensure we have two dates
+# Ensure two dates
 if isinstance(selected_dates, (tuple, list)) and len(selected_dates) == 2:
     start_date, end_date = selected_dates
 else:
     start_date = end_date = selected_dates
 
-# --- FIX: convert to YYYY-MM-DD strings for DuckDB ---
+# Convert to string format for DuckDB
 start_date_str = start_date.strftime("%Y-%m-%d")
 end_date_str = end_date.strftime("%Y-%m-%d")
 
@@ -146,7 +147,6 @@ metrics = st.multiselect(
 if metrics:
     use_secondary_y = "volume" in metrics
     fig_multi = make_subplots(specs=[[{"secondary_y": use_secondary_y}]])
-    
     for metric in metrics:
         for asset in df['asset'].unique():
             df_asset = df[df['asset'] == asset]
@@ -170,18 +170,15 @@ if metrics:
                     ),
                     secondary_y=False
                 )
-    
     fig_multi.update_layout(
         title_text="Selected Metrics Over Time (Dual Y-Axis)",
         xaxis_title="Date"
     )
-    
     if use_secondary_y:
         fig_multi.update_yaxes(title_text="Returns", secondary_y=False)
         fig_multi.update_yaxes(title_text="Volume", secondary_y=True)
     else:
         fig_multi.update_yaxes(title_text="Returns")
-    
     st.plotly_chart(fig_multi, width="stretch")
 else:
     st.info("Select at least one metric to display.")
