@@ -23,12 +23,20 @@ selected_assets = st.sidebar.multiselect("Select Assets", all_assets, default=al
 
 # Get min and max dates
 min_date, max_date = conn.execute("SELECT MIN(date), MAX(date) FROM int_crypto_features").fetchone()
-start_date, end_date = st.sidebar.date_input(
+
+# Date range picker safely handles single or multiple selections
+selected_dates = st.sidebar.date_input(
     "Date Range",
-    [min_date, max_date],
+    value=[min_date, max_date],
     min_value=min_date,
     max_value=max_date
 )
+
+# Ensure we always have start_date and end_date
+if isinstance(selected_dates, (tuple, list)):
+    start_date, end_date = selected_dates
+else:
+    start_date = end_date = selected_dates
 
 # ------------------------------
 # 3️⃣ Query the filtered data
