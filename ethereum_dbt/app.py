@@ -94,15 +94,27 @@ df['volatility_30d'] = (
     .transform(lambda x: x.rolling(30, min_periods=5).std() * (365 ** 0.5))
 )
 
+# 30-Day Rolling Mean Return
+df['rolling_mean_30d'] = (
+    df.groupby('asset')['daily_return']
+    .transform(lambda x: x.rolling(30, min_periods=5).mean())
+)
+
+# 30-Day Rolling Sharpe Ratio (Annualized)
+df['rolling_sharpe_30d'] = (
+    df['rolling_mean_30d'] /
+    (df['volatility_30d'] / (365 ** 0.5))
+)
+
 # ------------------------------
 # 6️⃣ Dashboard Title & Description
 # ------------------------------
 st.title("📊 Crypto Daily Metrics Dashboard")
 st.markdown(
     """
-    Interactive dashboard for analyzing crypto asset performance.
-    View daily returns, smoothed trends, cumulative growth,
-    volatility, log returns, volume, and per-asset sparkline summaries.
+    Performance + Risk analytics dashboard for crypto assets.
+    Includes returns, volatility, Sharpe ratio, correlations,
+    and interactive multi-metric visualization.
     """
 )
 
@@ -110,6 +122,7 @@ st.subheader("Summary Metrics")
 st.write("Total Records:", len(df))
 st.write("Average Daily Return:", round(df['daily_return'].mean(), 6))
 st.write("Average 30D Volatility:", round(df['volatility_30d'].mean(), 4))
+st.write("Average 30D Sharpe:", round(df['rolling_sharpe_30d'].mean(), 4))
 
 # ------------------------------
 # 7️⃣ Daily Return Plot
@@ -131,14 +144,12 @@ st.plotly_chart(fig_ma, width="stretch")
 # 9️⃣ Cumulative Return Plot
 # ------------------------------
 st.subheader("Cumulative Return (Growth of $1 Invested)")
-st.markdown("Shows how $1 would have grown over time.")
-
 fig_cum = px.line(df, x="date", y="cumulative_return", color="asset")
 fig_cum.update_yaxes(tickformat=".2f")
 st.plotly_chart(fig_cum, width="stretch")
 
 # ------------------------------
-# 🔟 30-Day Rolling Volatility Plot
+# 🔟 30-Day Rolling Volatility
 # ------------------------------
 st.subheader("30-Day Rolling Volatility (Annualized)")
 fig_vol = px.line(df, x="date", y="volatility_30d", color="asset")
@@ -146,7 +157,14 @@ fig_vol.update_yaxes(tickformat=".2%")
 st.plotly_chart(fig_vol, width="stretch")
 
 # ------------------------------
-# 1️⃣1️⃣ Log Return Plot
+# 1️⃣1️⃣ 30-Day Rolling Sharpe Ratio
+# ------------------------------
+st.subheader("30-Day Rolling Sharpe Ratio (Annualized)")
+fig_sharpe = px.line(df, x="date", y="rolling_sharpe_30d", color="asset")
+st.plotly_chart(fig_sharpe, width="stretch")
+
+# ------------------------------
+# 1️⃣2️⃣ Log Return Plot
 # ------------------------------
 st.subheader("Log Return Over Time")
 fig_log = px.line(df, x="date", y="log_return", color="asset")
@@ -154,7 +172,7 @@ fig_log.update_yaxes(tickformat=".2%")
 st.plotly_chart(fig_log, width="stretch")
 
 # ------------------------------
-# 1️⃣2️⃣ Volume Plot
+# 1️⃣3️⃣ Volume Plot
 # ------------------------------
 st.subheader("Volume Over Time")
 fig_volume = px.line(df, x="date", y="volume", color="asset")
@@ -162,7 +180,7 @@ fig_volume.update_yaxes(tickformat=",")
 st.plotly_chart(fig_volume, width="stretch")
 
 # ------------------------------
-# 1️⃣3️⃣ Multi-Metric Toggle Plot
+# 1️⃣4️⃣ Multi-Metric Toggle Plot
 # ------------------------------
 st.subheader("Interactive Multi-Metric Plot (Dual Y-Axis)")
 
@@ -173,6 +191,7 @@ metrics = st.multiselect(
         "daily_return_7d_ma",
         "cumulative_return",
         "volatility_30d",
+        "rolling_sharpe_30d",
         "log_return",
         "volume"
     ],
@@ -198,7 +217,7 @@ if metrics:
             )
 
     if use_secondary_y:
-        fig_multi.update_yaxes(title_text="Returns / Volatility", secondary_y=False)
+        fig_multi.update_yaxes(title_text="Returns / Risk Metrics", secondary_y=False)
         fig_multi.update_yaxes(title_text="Volume", secondary_y=True)
 
     st.plotly_chart(fig_multi, width="stretch")
@@ -206,7 +225,34 @@ else:
     st.info("Select at least one metric to display.")
 
 # ------------------------------
-# 1️⃣4️⃣ Portfolio Sparklines
+# 1️⃣5️⃣ Correlation Matrix
+# ------------------------------
+st.subheader("Asset Correlation Matrix (Daily Returns)")
+
+if len(selected_assets) > 1:
+    pivot_df = df.pivot(
+        index="date",
+        columns="asset",
+        values="daily_return"
+    )
+
+    corr_matrix = pivot_df.corr()
+
+    fig_corr = px.imshow(
+        corr_matrix,
+        text_auto=True,
+        aspect="auto",
+        color_continuous_scale="RdBu",
+        zmin=-1,
+        zmax=1
+    )
+
+    st.plotly_chart(fig_corr, width="stretch")
+else:
+    st.info("Select at least two assets to view correlation matrix.")
+
+# ------------------------------
+# 1️⃣6️⃣ Portfolio Sparklines
 # ------------------------------
 st.subheader("Portfolio Sparklines by Asset")
 
@@ -216,7 +262,6 @@ for asset in selected_assets:
         continue
 
     fig_spark = go.Figure()
-
     fig_spark.add_trace(go.Scatter(
         x=df_asset['date'],
         y=df_asset['daily_return'],
@@ -235,7 +280,7 @@ for asset in selected_assets:
     st.plotly_chart(fig_spark, width="stretch")
 
 # ------------------------------
-# 1️⃣5️⃣ Download CSV
+# 1️⃣7️⃣ Download CSV
 # ------------------------------
 st.subheader("Download Filtered Data")
 
