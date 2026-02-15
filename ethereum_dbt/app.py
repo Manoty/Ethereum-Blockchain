@@ -9,7 +9,7 @@ from plotly.subplots import make_subplots
 # ------------------------------
 # 1️⃣ Connect to DuckDB
 # ------------------------------
-DB_PATH = r"C:\kev\Ethereum_Blockchain\eth_blockchain\ethereum_dbt\dev.duckdb"
+DB_PATH = "dev.duckdb"
 conn = duckdb.connect(DB_PATH, read_only=True)
 
 # ------------------------------
