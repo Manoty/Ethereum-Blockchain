@@ -2,3 +2,6 @@ streamlit
 duckdb
 pandas
 plotly
+dbt-core
+dbt-duckdb
+dbt-utils
