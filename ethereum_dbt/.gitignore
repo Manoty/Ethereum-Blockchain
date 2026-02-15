@@ -9,4 +9,3 @@ duckdb/
 *.duckdb
 *.duckdb.wal
 *.db
-dev.duckdb
