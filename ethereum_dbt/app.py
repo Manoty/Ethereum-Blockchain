@@ -2,6 +2,7 @@
 import streamlit as st
 import duckdb
 import pandas as pd
+import os
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -9,7 +10,11 @@ from plotly.subplots import make_subplots
 # ------------------------------
 # 1️⃣ Connect to DuckDB
 # ------------------------------
-DB_PATH = "dev.duckdb"
+# Use a path relative to this file so Streamlit Cloud can find it
+DB_PATH = os.path.join(os.path.dirname(__file__), "dev.duckdb")
+
+# Connect to DuckDB
+
 conn = duckdb.connect(DB_PATH, read_only=True)
 
 # ------------------------------
