@@ -1,6 +1,6 @@
 📈 Crypto Analytics Dashboard
 
-A fully interactive Streamlit dashboard for analyzing cryptocurrency daily metrics, built on DuckDB, Pandas, and Plotly. Explore asset returns, volatility, correlations, and risk-adjusted performance for multiple assets in one place.
+A fully interactive Streamlit dashboard for analyzing cryptocurrency daily metrics, built on DuckDB, Pandas, and Plotly. Explores asset returns, volatility, correlations, and risk-adjusted performance for multiple assets in one place.
 
 This project demonstrates data engineering, analytics, and visualization skills for portfolio and professional use.
 
@@ -26,7 +26,7 @@ Each visualization includes hover tooltips, formatted axes, and labels for reada
 
 🔧 Tech Stack
 
-Python 3.13
+Python 3.11
 
 Streamlit – interactive dashboard interface
 
