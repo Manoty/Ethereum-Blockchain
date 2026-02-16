@@ -1,110 +1,250 @@
-📈 Crypto Analytics Dashboard
+# app.py
+import os
+import streamlit as st
+import duckdb
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
-A fully interactive Streamlit dashboard for analyzing cryptocurrency daily metrics, built on DuckDB, Pandas, and Plotly. Explores asset returns, volatility, correlations, and risk-adjusted performance for multiple assets in one place.
+# ------------------------------
+# 1️⃣ Connect to DuckDB
+# ------------------------------
+DB_PATH = os.path.join(os.path.dirname(__file__), "dev.duckdb")
+conn = duckdb.connect(DB_PATH, read_only=True)
 
-This project demonstrates data engineering, analytics, and visualization skills for portfolio and professional use.
+# ------------------------------
+# 2️⃣ Sidebar Controls
+# ------------------------------
+st.sidebar.header("Select Assets & Date Range")
 
-💡 Key Features
+# Get distinct assets from the table
+assets_df = conn.execute("SELECT DISTINCT asset FROM int_crypto_features ORDER BY asset").df()
+all_assets = assets_df['asset'].tolist()
 
-Daily Return Analysis – visualize daily gains and losses per asset.
+selected_assets = st.sidebar.multiselect("Select Assets", all_assets, default=all_assets[:5])
 
-7-Day Moving Average – smooth out short-term fluctuations.
+# Get min and max dates from the DB
+min_date_raw, max_date_raw = conn.execute("SELECT MIN(date), MAX(date) FROM int_crypto_features").fetchone()
+min_date = pd.to_datetime(min_date_raw).date()
+max_date = pd.to_datetime(max_date_raw).date()
 
-Log Returns – measure multiplicative changes.
+# Default to last 30 days
+default_start = max(min_date, max_date - pd.Timedelta(days=30))
+default_end = max_date
 
-Trading Volume Insights – analyze liquidity and market activity trends.
+# Date picker with proper min/max and defaults
+selected_dates = st.sidebar.date_input(
+    "Date Range",
+    value=[default_start, default_end],
+    min_value=min_date,
+    max_value=max_date
+)
 
-Multi-Metric Interactive Plot – compare multiple metrics simultaneously with dual Y-axis support.
+# Ensure two dates
+if isinstance(selected_dates, (tuple, list)) and len(selected_dates) == 2:
+    start_date, end_date = selected_dates
+else:
+    start_date = end_date = selected_dates
 
-Rolling Sharpe Ratio – assess risk-adjusted performance dynamically.
+# Convert to string format for DuckDB
+start_date_str = start_date.strftime("%Y-%m-%d")
+end_date_str = end_date.strftime("%Y-%m-%d")
 
-Correlation Heatmap – identify relationships and dependencies between assets.
+# ------------------------------
+# 3️⃣ Query the filtered data
+# ------------------------------
+query = f"""
+SELECT date, asset, close_price, open_price, high, low, volume, daily_return, log_return
+FROM int_crypto_features
+WHERE asset IN ({','.join([f"'{a}'" for a in selected_assets])})
+  AND date BETWEEN '{start_date_str}' AND '{end_date_str}'
+ORDER BY asset, date
+"""
+df = conn.execute(query).df()
 
-Download Filtered Data – export selected datasets for offline analysis.
+# ------------------------------
+# 4️⃣ Fix Column Names
+# ------------------------------
+df.columns = [c.lower() for c in df.columns]
+df['date'] = pd.to_datetime(df['date'])
 
-Each visualization includes hover tooltips, formatted axes, and labels for readability.
+# ------------------------------
+# 5️⃣ Calculate 7-Day Moving Average
+# ------------------------------
+df = df.sort_values(['asset', 'date'])
+df['daily_return_7d_ma'] = df.groupby('asset')['daily_return'].transform(lambda x: x.rolling(7, min_periods=1).mean())
 
-🔧 Tech Stack
+# ------------------------------
+# 6️⃣ Dashboard Title & Summary
+# ------------------------------
+st.title("📊 Crypto Daily Metrics Dashboard")
+st.markdown("Interactive dashboard showing key metrics and risk indicators for selected crypto assets.")
+st.subheader("Summary Metrics")
+st.write("Total Records:", len(df))
+st.write("Average Daily Return:", round(df['daily_return'].mean(), 6))
 
-Python 3.11
+# ------------------------------
+# 7️⃣ Daily Return Plot
+# ------------------------------
+st.subheader("Daily Return Over Time")
+st.markdown("Shows the day-to-day returns for selected assets.")
+fig_return = px.line(
+    df,
+    x="date",
+    y="daily_return",
+    color="asset",
+    labels={"daily_return": "Daily Return", "date": "Date"},
+    title="Daily Return Trends"
+)
+st.plotly_chart(fig_return, width="stretch")
 
-Streamlit – interactive dashboard interface
+# ------------------------------
+# 8️⃣ 7-Day Moving Average Plot
+# ------------------------------
+st.subheader("7-Day Moving Average of Daily Return")
+st.markdown("Smoothed daily returns using a 7-day rolling average to reduce volatility noise.")
+fig_ma = px.line(
+    df,
+    x="date",
+    y="daily_return_7d_ma",
+    color="asset",
+    labels={"daily_return_7d_ma": "7-Day MA Daily Return", "date": "Date"},
+    title="Smoothed Daily Return Trends"
+)
+st.plotly_chart(fig_ma, width="stretch")
 
-DuckDB – local analytical database for fast queries
+# ------------------------------
+# 9️⃣ Log Return Plot
+# ------------------------------
+st.subheader("Log Return Over Time")
+st.markdown("Natural log of returns for statistical analysis and compounding effects.")
+fig_log = px.line(
+    df,
+    x="date",
+    y="log_return",
+    color="asset",
+    labels={"log_return": "Log Return", "date": "Date"},
+    title="Log Return Trends"
+)
+st.plotly_chart(fig_log, width="stretch")
 
-Pandas & NumPy – data wrangling and calculations
+# ------------------------------
+# 🔟 Volume Plot
+# ------------------------------
+st.subheader("Volume Over Time")
+st.markdown("Trading volume trends over time for each asset.")
+fig_volume = px.line(
+    df,
+    x="date",
+    y="volume",
+    color="asset",
+    labels={"volume": "Volume", "date": "Date"},
+    title="Trading Volume Trends"
+)
+st.plotly_chart(fig_volume, width="stretch")
 
-Plotly – interactive visualizations (line charts, dual-axis plots, heatmaps)
+# ------------------------------
+# 1️⃣1️⃣ Multi-Metric Toggle Plot with Dual Y-Axis
+# ------------------------------
+st.subheader("Interactive Multi-Metric Plot (Dual Y-Axis)")
+st.markdown("Compare returns and volume on the same plot. Volume will be on the secondary axis if selected.")
 
-🗂 Project Structure
-ethereum_dbt/
-├─ app.py                 # Main Streamlit dashboard
-├─ data.py                # Data utility functions
-├─ dev.duckdb             # Local DuckDB database (not in GitHub)
-├─ models/                # dbt models for feature engineering
-├─ seeds/                 # Seed CSVs for dbt
-├─ snapshots/             # dbt snapshots
-├─ sources/               # dbt sources
-├─ tests/                 # dbt tests
-├─ requirements.txt       # Python dependencies
-└─ README.md              # This file
+metrics = st.multiselect(
+    "Select Metrics to Display",
+    options=["daily_return", "daily_return_7d_ma", "log_return", "volume"],
+    default=["daily_return", "daily_return_7d_ma"]
+)
 
-🚀 Installation & Run
+if metrics:
+    use_secondary_y = "volume" in metrics
+    fig_multi = make_subplots(specs=[[{"secondary_y": use_secondary_y}]])
+    for metric in metrics:
+        for asset in df['asset'].unique():
+            df_asset = df[df['asset'] == asset]
+            if metric == "volume":
+                fig_multi.add_trace(
+                    go.Scatter(
+                        x=df_asset['date'],
+                        y=df_asset[metric],
+                        mode='lines',
+                        name=f"{asset} - {metric}"
+                    ),
+                    secondary_y=True
+                )
+            else:
+                fig_multi.add_trace(
+                    go.Scatter(
+                        x=df_asset['date'],
+                        y=df_asset[metric],
+                        mode='lines',
+                        name=f"{asset} - {metric}"
+                    ),
+                    secondary_y=False
+                )
 
-Clone the repository:
+    fig_multi.update_layout(
+        title_text="Selected Metrics Over Time (Dual Y-Axis)",
+        xaxis_title="Date"
+    )
+    if use_secondary_y:
+        fig_multi.update_yaxes(title_text="Returns", secondary_y=False)
+        fig_multi.update_yaxes(title_text="Volume", secondary_y=True)
+    else:
+        fig_multi.update_yaxes(title_text="Returns")
+    st.plotly_chart(fig_multi, width="stretch")
+else:
+    st.info("Select at least one metric to display.")
 
-git clone <repo-url>
-cd ethereum_dbt
+# ------------------------------
+# 1️⃣2️⃣ Additional Risk Metrics (VaR & Drawdown)
+# ------------------------------
+st.subheader("Additional Risk Metrics")
+st.markdown("Value at Risk (5%) and Maximum Drawdown per asset.")
 
+# Function to compute rolling drawdown
+def rolling_drawdown(series):
+    cumulative = (1 + series).cumprod()
+    peak = cumulative.cummax()
+    drawdown = (cumulative - peak) / peak
+    return drawdown
 
-Set up a virtual environment:
+risk_metrics = []
+for asset in df['asset'].unique():
+    df_asset = df[df['asset'] == asset].copy()
+    
+    # Value at Risk (5% quantile of daily return)
+    var_5 = df_asset['daily_return'].quantile(0.05)
+    
+    # Max drawdown
+    drawdown = rolling_drawdown(df_asset['daily_return'])
+    max_dd = drawdown.min()
+    
+    risk_metrics.append({
+        "asset": asset,
+        "VaR 5%": var_5,
+        "Max Drawdown": max_dd
+    })
 
-python -m venv venv
-source venv/bin/activate  # Linux / Mac
-venv\Scripts\activate     # Windows
+df_risk = pd.DataFrame(risk_metrics)
 
+# Display table with formatting
+st.dataframe(df_risk.style.format({
+    "VaR 5%": "{:.2%}",
+    "Max Drawdown": "{:.2%}"
+}))
 
-Install dependencies:
-
-pip install -r requirements.txt
-
-
-Launch the dashboard:
-
-streamlit run app.py
-
-
-
-🎛 How to Use
-
-Select assets from the sidebar.
-
-Pick a date range to filter data.
-
-Explore the interactive charts:
-
-Daily Returns
-
-7-Day Moving Average
-
-Log Returns
-
-Trading Volume
-
-Multi-Metric Dual Y-Axis Plot
-
-Rolling Sharpe Ratio
-
-Correlation Heatmap
-
-Download filtered data as CSV for offline analysis.
-
-Each chart provides tooltips, formatted axes, and legends for quick understanding.
-
-
-
-📌 Notes
-
-dev.duckdb is not included in the repository. Place it in the project root to run locally.
-
-Tested on Python 3.11, Streamlit 1.54, DuckDB 1.4+.
+# Optional: Drawdown Over Time Plot
+st.subheader("Drawdown Over Time")
+st.markdown("Visualize cumulative drawdown trends for each asset.")
+fig_dd = px.line(
+    pd.concat([
+        df.assign(drawdown=rolling_drawdown(df['daily_return']))
+    ]),
+    x="date",
+    y="drawdown",
+    color="asset",
+    labels={"drawdown": "Drawdown", "date": "Date"},
+    title="Drawdown Trends"
+)
+st.plotly_chart(fig_dd, width="stretch")
