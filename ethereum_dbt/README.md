@@ -89,17 +89,7 @@ Explore asset correlations via the heatmap.
 
 Download the filtered data for offline analysis.
 
-📊 Insights
 
-You can replace these with actual analysis from your data.
-
-Hedera shows high volatility spikes during early 2023.
-
-Litecoin and Polygon exhibit strong positive correlation.
-
-Rolling Sharpe ratio highlights risk-adjusted outperformance periods.
-
-Volume trends indicate liquidity peaks during certain market events.
 
 📝 Contributing
 
@@ -115,4 +105,4 @@ Database (dev.duckdb) is not included in GitHub.
 
 Ensure dependencies match requirements.txt.
 
-Tested on Python 3.13 and Streamlit 1.54.0.
+Tested on Python 3.11 and Streamlit 1.54.0.
