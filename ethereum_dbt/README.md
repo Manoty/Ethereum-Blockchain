@@ -1,250 +1,269 @@
-# app.py
-import os
-import streamlit as st
-import duckdb
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+📊 Crypto Performance & Risk Analytics Dashboard
 
-# ------------------------------
-# 1️⃣ Connect to DuckDB
-# ------------------------------
-DB_PATH = os.path.join(os.path.dirname(__file__), "dev.duckdb")
-conn = duckdb.connect(DB_PATH, read_only=True)
+A quantitative crypto analytics dashboard built with Streamlit, DuckDB, Pandas, and Plotly.
 
-# ------------------------------
-# 2️⃣ Sidebar Controls
-# ------------------------------
-st.sidebar.header("Select Assets & Date Range")
+This project delivers performance analysis, volatility modeling, correlation insights, and portfolio-level risk analytics using engineered financial features.
 
-# Get distinct assets from the table
-assets_df = conn.execute("SELECT DISTINCT asset FROM int_crypto_features ORDER BY asset").df()
-all_assets = assets_df['asset'].tolist()
+🚀 Overview
 
-selected_assets = st.sidebar.multiselect("Select Assets", all_assets, default=all_assets[:5])
+This dashboard allows users to:
 
-# Get min and max dates from the DB
-min_date_raw, max_date_raw = conn.execute("SELECT MIN(date), MAX(date) FROM int_crypto_features").fetchone()
-min_date = pd.to_datetime(min_date_raw).date()
-max_date = pd.to_datetime(max_date_raw).date()
+Select multiple crypto assets
 
-# Default to last 30 days
-default_start = max(min_date, max_date - pd.Timedelta(days=30))
-default_end = max_date
+Filter by custom date ranges
 
-# Date picker with proper min/max and defaults
-selected_dates = st.sidebar.date_input(
-    "Date Range",
-    value=[default_start, default_end],
-    min_value=min_date,
-    max_value=max_date
-)
+Analyze return behavior
 
-# Ensure two dates
-if isinstance(selected_dates, (tuple, list)) and len(selected_dates) == 2:
-    start_date, end_date = selected_dates
-else:
-    start_date = end_date = selected_dates
+Measure rolling volatility
 
-# Convert to string format for DuckDB
-start_date_str = start_date.strftime("%Y-%m-%d")
-end_date_str = end_date.strftime("%Y-%m-%d")
+Evaluate Sharpe ratios
 
-# ------------------------------
-# 3️⃣ Query the filtered data
-# ------------------------------
-query = f"""
-SELECT date, asset, close_price, open_price, high, low, volume, daily_return, log_return
-FROM int_crypto_features
-WHERE asset IN ({','.join([f"'{a}'" for a in selected_assets])})
-  AND date BETWEEN '{start_date_str}' AND '{end_date_str}'
-ORDER BY asset, date
-"""
-df = conn.execute(query).df()
+Visualize cross-asset correlations
 
-# ------------------------------
-# 4️⃣ Fix Column Names
-# ------------------------------
-df.columns = [c.lower() for c in df.columns]
-df['date'] = pd.to_datetime(df['date'])
+Build an equal-weighted portfolio
 
-# ------------------------------
-# 5️⃣ Calculate 7-Day Moving Average
-# ------------------------------
-df = df.sort_values(['asset', 'date'])
-df['daily_return_7d_ma'] = df.groupby('asset')['daily_return'].transform(lambda x: x.rolling(7, min_periods=1).mean())
+Analyze drawdowns and risk metrics
 
-# ------------------------------
-# 6️⃣ Dashboard Title & Summary
-# ------------------------------
-st.title("📊 Crypto Daily Metrics Dashboard")
-st.markdown("Interactive dashboard showing key metrics and risk indicators for selected crypto assets.")
-st.subheader("Summary Metrics")
-st.write("Total Records:", len(df))
-st.write("Average Daily Return:", round(df['daily_return'].mean(), 6))
+Export filtered datasets
 
-# ------------------------------
-# 7️⃣ Daily Return Plot
-# ------------------------------
-st.subheader("Daily Return Over Time")
-st.markdown("Shows the day-to-day returns for selected assets.")
-fig_return = px.line(
-    df,
-    x="date",
-    y="daily_return",
-    color="asset",
-    labels={"daily_return": "Daily Return", "date": "Date"},
-    title="Daily Return Trends"
-)
-st.plotly_chart(fig_return, width="stretch")
+The system is backed by a DuckDB analytical database built from a dbt pipeline.
 
-# ------------------------------
-# 8️⃣ 7-Day Moving Average Plot
-# ------------------------------
-st.subheader("7-Day Moving Average of Daily Return")
-st.markdown("Smoothed daily returns using a 7-day rolling average to reduce volatility noise.")
-fig_ma = px.line(
-    df,
-    x="date",
-    y="daily_return_7d_ma",
-    color="asset",
-    labels={"daily_return_7d_ma": "7-Day MA Daily Return", "date": "Date"},
-    title="Smoothed Daily Return Trends"
-)
-st.plotly_chart(fig_ma, width="stretch")
+🏗️ Architecture
 
-# ------------------------------
-# 9️⃣ Log Return Plot
-# ------------------------------
-st.subheader("Log Return Over Time")
-st.markdown("Natural log of returns for statistical analysis and compounding effects.")
-fig_log = px.line(
-    df,
-    x="date",
-    y="log_return",
-    color="asset",
-    labels={"log_return": "Log Return", "date": "Date"},
-    title="Log Return Trends"
-)
-st.plotly_chart(fig_log, width="stretch")
+Data Layer
 
-# ------------------------------
-# 🔟 Volume Plot
-# ------------------------------
-st.subheader("Volume Over Time")
-st.markdown("Trading volume trends over time for each asset.")
-fig_volume = px.line(
-    df,
-    x="date",
-    y="volume",
-    color="asset",
-    labels={"volume": "Volume", "date": "Date"},
-    title="Trading Volume Trends"
-)
-st.plotly_chart(fig_volume, width="stretch")
+dbt transformations
 
-# ------------------------------
-# 1️⃣1️⃣ Multi-Metric Toggle Plot with Dual Y-Axis
-# ------------------------------
-st.subheader("Interactive Multi-Metric Plot (Dual Y-Axis)")
-st.markdown("Compare returns and volume on the same plot. Volume will be on the secondary axis if selected.")
+DuckDB analytics warehouse (dev.duckdb)
 
-metrics = st.multiselect(
-    "Select Metrics to Display",
-    options=["daily_return", "daily_return_7d_ma", "log_return", "volume"],
-    default=["daily_return", "daily_return_7d_ma"]
-)
+Feature engineering models
 
-if metrics:
-    use_secondary_y = "volume" in metrics
-    fig_multi = make_subplots(specs=[[{"secondary_y": use_secondary_y}]])
-    for metric in metrics:
-        for asset in df['asset'].unique():
-            df_asset = df[df['asset'] == asset]
-            if metric == "volume":
-                fig_multi.add_trace(
-                    go.Scatter(
-                        x=df_asset['date'],
-                        y=df_asset[metric],
-                        mode='lines',
-                        name=f"{asset} - {metric}"
-                    ),
-                    secondary_y=True
-                )
-            else:
-                fig_multi.add_trace(
-                    go.Scatter(
-                        x=df_asset['date'],
-                        y=df_asset[metric],
-                        mode='lines',
-                        name=f"{asset} - {metric}"
-                    ),
-                    secondary_y=False
-                )
+Analytics Layer
 
-    fig_multi.update_layout(
-        title_text="Selected Metrics Over Time (Dual Y-Axis)",
-        xaxis_title="Date"
-    )
-    if use_secondary_y:
-        fig_multi.update_yaxes(title_text="Returns", secondary_y=False)
-        fig_multi.update_yaxes(title_text="Volume", secondary_y=True)
-    else:
-        fig_multi.update_yaxes(title_text="Returns")
-    st.plotly_chart(fig_multi, width="stretch")
-else:
-    st.info("Select at least one metric to display.")
+Rolling statistics
 
-# ------------------------------
-# 1️⃣2️⃣ Additional Risk Metrics (VaR & Drawdown)
-# ------------------------------
-st.subheader("Additional Risk Metrics")
-st.markdown("Value at Risk (5%) and Maximum Drawdown per asset.")
+Cumulative returns
 
-# Function to compute rolling drawdown
-def rolling_drawdown(series):
-    cumulative = (1 + series).cumprod()
-    peak = cumulative.cummax()
-    drawdown = (cumulative - peak) / peak
-    return drawdown
+Volatility modeling
 
-risk_metrics = []
-for asset in df['asset'].unique():
-    df_asset = df[df['asset'] == asset].copy()
-    
-    # Value at Risk (5% quantile of daily return)
-    var_5 = df_asset['daily_return'].quantile(0.05)
-    
-    # Max drawdown
-    drawdown = rolling_drawdown(df_asset['daily_return'])
-    max_dd = drawdown.min()
-    
-    risk_metrics.append({
-        "asset": asset,
-        "VaR 5%": var_5,
-        "Max Drawdown": max_dd
-    })
+Sharpe ratio computation
 
-df_risk = pd.DataFrame(risk_metrics)
+Correlation matrix
 
-# Display table with formatting
-st.dataframe(df_risk.style.format({
-    "VaR 5%": "{:.2%}",
-    "Max Drawdown": "{:.2%}"
-}))
+Portfolio risk metrics
 
-# Optional: Drawdown Over Time Plot
-st.subheader("Drawdown Over Time")
-st.markdown("Visualize cumulative drawdown trends for each asset.")
-fig_dd = px.line(
-    pd.concat([
-        df.assign(drawdown=rolling_drawdown(df['daily_return']))
-    ]),
-    x="date",
-    y="drawdown",
-    color="asset",
-    labels={"drawdown": "Drawdown", "date": "Date"},
-    title="Drawdown Trends"
-)
-st.plotly_chart(fig_dd, width="stretch")
+Application Layer
+
+Streamlit dashboard
+
+Plotly interactive visualizations
+
+📂 Project Structure
+ethereum_dbt/
+│
+├── app.py
+├── dev.duckdb
+├── models/
+│   ├── staging/
+│   ├── intermediate/
+│   └── marts/
+├── seeds/
+├── dbt_project.yml
+├── requirements.txt
+└── README.md
+
+📈 Analytics & Metrics
+Asset-Level Metrics
+
+Daily Return
+
+7-Day Moving Average Return
+
+Cumulative Return (Growth of $1)
+
+30-Day Rolling Volatility (Annualized)
+
+30-Day Rolling Sharpe Ratio
+
+Log Returns
+
+Trading Volume
+
+Correlation Matrix
+
+📊 Portfolio Risk Analytics (Equal Weighted)
+
+When multiple assets are selected, the dashboard automatically builds an equal-weighted portfolio.
+
+Portfolio metrics include:
+
+Portfolio Cumulative Return
+
+Annualized Volatility
+
+Sharpe Ratio
+
+Rolling 30-Day Sharpe
+
+Maximum Drawdown
+
+Drawdown Time Series
+
+🧠 Risk Metric Definitions
+
+Volatility (Annualized)
+Standard deviation of daily returns scaled by √365.
+
+Sharpe Ratio
+Risk-adjusted return metric:
+
+(mean portfolio return / std deviation) × √365
+
+
+Drawdown
+Peak-to-trough decline in portfolio value.
+
+Max Drawdown
+Largest observed drawdown during selected period.
+
+🛠️ Tech Stack
+
+Python 3.10+
+
+Streamlit
+
+DuckDB
+
+dbt
+
+Pandas
+
+NumPy
+
+Plotly
+
+⚙️ Installation
+1️⃣ Clone Repository
+git clone https://github.com/your-username/crypto-risk-dashboard.git
+cd crypto-risk-dashboard
+
+2️⃣ Install Dependencies
+pip install -r requirements.txt
+
+3️⃣ Run dbt (if rebuilding database)
+dbt run
+
+4️⃣ Launch App
+streamlit run app.py
+
+📦 Data Source
+
+The DuckDB database is generated via dbt transformations from structured crypto price data.
+
+Core table used:
+
+int_crypto_features
+
+
+Includes:
+
+close_price
+
+daily_return
+
+log_return
+
+volume
+
+engineered rolling features
+
+📊 Features Engineered
+
+Rolling mean returns
+
+Rolling volatility (30D)
+
+Rolling Sharpe (30D)
+
+7-day smoothed returns
+
+Cumulative return curves
+
+Portfolio drawdown tracking
+
+📤 Export Capability
+
+Users can download filtered data directly from the dashboard as a CSV file.
+
+🌍 Deployment
+
+Deployable on:
+
+Streamlit Community Cloud
+
+Render
+
+Railway
+
+Docker environments
+
+Ensure dev.duckdb is included in deployment root.
+
+🗺️ Roadmap
+Phase 1 (Completed)
+
+Asset-level analytics
+
+Rolling risk metrics
+
+Correlation matrix
+
+Equal-weighted portfolio
+
+Drawdown analysis
+
+Phase 2 (In Progress / Optional Expansion)
+
+Value at Risk (VaR)
+
+Sortino Ratio
+
+Beta vs BTC
+
+Efficient Frontier
+
+Monte Carlo simulation
+
+Risk-adjusted ranking system
+
+📌 Future Enhancements
+
+Custom portfolio weights
+
+Risk-free rate input
+
+Backtesting engine
+
+Strategy comparison framework
+
+Factor modeling
+
+Regime detection
+
+API integration for live pricing
+
+📜 License
+
+MIT License
+
+👤 Author
+
+Built as a quantitative analytics engineering project combining:
+
+Data modeling
+
+Financial risk analytics
+
+Portfolio theory
+
+Interactive dashboard engineering
