@@ -1,29 +1,27 @@
-
+# dbt & DuckDB
 target/
 dbt_packages/
+dbt_modules/
 logs/
-
 duckdb/
-
-# DuckDB files
 *.duckdb
 *.duckdb.wal
 *.db
 
-# Python
+# Python & Virtual Envs
 __pycache__/
 *.pyc
-
-# Virtual env
 venv/
-.env/
-
-# Database
-*.duckdb
-*.db
+.env
+.env.*
 
 # Streamlit
-.streamlit/
+.streamlit/secrets.toml
 
 # OS
 .DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
