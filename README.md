@@ -6,37 +6,38 @@ This project demonstrates data engineering, analytics, and visualization skills 
 
 💡 Key Features
 
-Daily Return Analysis – visualize daily gains and losses per asset.
+>Daily Return Analysis – visualize daily gains and losses per asset.
 
-7-Day Moving Average – smooth out short-term fluctuations.
+>7-Day Moving Average – smooth out short-term fluctuations.
 
-Log Returns – measure multiplicative changes.
+>Log Returns – measure multiplicative changes.
 
-Trading Volume Insights – analyze liquidity and market activity trends.
+>Trading Volume Insights – analyze liquidity and market activity trends.
 
-Multi-Metric Interactive Plot – compare multiple metrics simultaneously with dual Y-axis support.
+>Multi-Metric Interactive Plot – compare multiple metrics simultaneously with dual Y-axis support.
 
-Rolling Sharpe Ratio – assess risk-adjusted performance dynamically.
+>Rolling Sharpe Ratio – assess risk-adjusted performance dynamically.
 
-Correlation Heatmap – identify relationships and dependencies between assets.
+>Correlation Heatmap – identify relationships and dependencies between assets.
 
-Download Filtered Data – export selected datasets for offline analysis.
+>Download Filtered Data – export selected datasets for offline analysis.
 
-Each visualization includes hover tooltips, formatted axes, and labels for readability.
+>Each visualization includes hover tooltips, formatted axes, and labels for readability.
 
 🔧 Tech Stack
 
-Python 3.11
+-Python 3.11
 
-Streamlit – interactive dashboard interface
+-Streamlit – interactive dashboard interface
 
-DuckDB – local analytical database for fast queries
+-DuckDB – local analytical database for fast queries
 
-Pandas & NumPy – data wrangling and calculations
+-Pandas & NumPy – data wrangling and calculations
 
-Plotly – interactive visualizations (line charts, dual-axis plots, heatmaps)
+-Plotly – interactive visualizations (line charts, dual-axis plots, heatmaps)
 
 🗂 Project Structure
+
 ethereum_dbt/
 ├─ app.py                 # Main Streamlit dashboard
 ├─ data.py                # Data utility functions
