@@ -24,7 +24,7 @@ Fully interactive date and asset selection.
 
 🛠 Technology Stack
 
-Python 3.13
+Python 3.11
 
 Streamlit – front-end dashboard interface
 
