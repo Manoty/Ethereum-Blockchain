@@ -3,6 +3,7 @@ import os
 import streamlit as st
 import duckdb
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -32,7 +33,7 @@ max_date = pd.to_datetime(max_date_raw).date()
 default_start = max(min_date, max_date - pd.Timedelta(days=30))
 default_end = max_date
 
-# Date picker with proper min/max and defaults
+# Date picker
 selected_dates = st.sidebar.date_input(
     "Date Range",
     value=[default_start, default_end],
@@ -40,7 +41,6 @@ selected_dates = st.sidebar.date_input(
     max_value=max_date
 )
 
-# Ensure two dates
 if isinstance(selected_dates, (tuple, list)) and len(selected_dates) == 2:
     start_date, end_date = selected_dates
 else:
@@ -66,11 +66,11 @@ df = conn.execute(query).df()
 # ------------------------------
 df.columns = [c.lower() for c in df.columns]
 df['date'] = pd.to_datetime(df['date'])
+df = df.sort_values(['asset', 'date'])
 
 # ------------------------------
 # 5️⃣ Calculate 7-Day Moving Average
 # ------------------------------
-df = df.sort_values(['asset', 'date'])
 df['daily_return_7d_ma'] = df.groupby('asset')['daily_return'].transform(lambda x: x.rolling(7, min_periods=1).mean())
 
 # ------------------------------
@@ -200,7 +200,44 @@ else:
     st.info("Select at least one metric to display.")
 
 # ------------------------------
-# 1️⃣2️⃣ Optional: Download Filtered Data
+# 1️⃣2️⃣ Rolling Sharpe Ratio Plot
+# ------------------------------
+st.subheader("Rolling 30-Day Sharpe Ratio")
+st.markdown("Risk-adjusted performance of each asset, calculated as mean return over rolling std deviation of returns.")
+rolling_window = 30
+sharpe_df = df.copy()
+sharpe_df['sharpe_30d'] = sharpe_df.groupby('asset')['daily_return'].transform(
+    lambda x: x.rolling(rolling_window, min_periods=1).mean() / x.rolling(rolling_window, min_periods=1).std()
+)
+fig_sharpe = px.line(
+    sharpe_df,
+    x='date',
+    y='sharpe_30d',
+    color='asset',
+    labels={'sharpe_30d': '30-Day Rolling Sharpe', 'date': 'Date'},
+    title="Rolling 30-Day Sharpe Ratio",
+    hover_data={"sharpe_30d": ":.4f", "date": "|%Y-%m-%d"}
+)
+st.plotly_chart(fig_sharpe, width="stretch")
+
+# ------------------------------
+# 1️⃣3️⃣ Correlation Matrix Heatmap
+# ------------------------------
+st.subheader("Correlation Matrix of Daily Returns")
+st.markdown("Correlation between selected assets' daily returns.")
+corr_df = df.pivot(index='date', columns='asset', values='daily_return').corr()
+fig_corr = px.imshow(
+    corr_df,
+    text_auto=True,
+    color_continuous_scale='RdBu_r',
+    zmin=-1, zmax=1,
+    labels=dict(x="Asset", y="Asset", color="Correlation"),
+    title="Daily Return Correlation Matrix"
+)
+st.plotly_chart(fig_corr, width="stretch")
+
+# ------------------------------
+# 1️⃣4️⃣ Optional: Download Filtered Data
 # ------------------------------
 st.subheader("Download Filtered Data")
 st.markdown("Download the data you are currently viewing for further analysis.")
