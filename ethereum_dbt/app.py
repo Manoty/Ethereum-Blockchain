@@ -6,7 +6,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import numpy as np
 
 # ------------------------------
 # 1️⃣ Connect to DuckDB
@@ -80,7 +79,7 @@ df['daily_return_7d_ma'] = df.groupby('asset')['daily_return'].transform(lambda 
 # 6️⃣ Dashboard Title & Summary
 # ------------------------------
 st.title("📊 Crypto Daily Metrics Dashboard")
-st.write("Analyze daily returns, volume, and risk metrics for your selected crypto assets.")
+st.markdown("Interactive dashboard showing key metrics and risk indicators for selected crypto assets.")
 st.subheader("Summary Metrics")
 st.write("Total Records:", len(df))
 st.write("Average Daily Return:", round(df['daily_return'].mean(), 6))
@@ -89,7 +88,7 @@ st.write("Average Daily Return:", round(df['daily_return'].mean(), 6))
 # 7️⃣ Daily Return Plot
 # ------------------------------
 st.subheader("Daily Return Over Time")
-st.write("Shows daily return trends for selected assets.")
+st.markdown("Shows the day-to-day returns for selected assets.")
 fig_return = px.line(
     df,
     x="date",
@@ -104,7 +103,7 @@ st.plotly_chart(fig_return, width="stretch")
 # 8️⃣ 7-Day Moving Average Plot
 # ------------------------------
 st.subheader("7-Day Moving Average of Daily Return")
-st.write("Smooths daily returns to show short-term trends.")
+st.markdown("Smoothed daily returns using a 7-day rolling average to reduce volatility noise.")
 fig_ma = px.line(
     df,
     x="date",
@@ -119,7 +118,7 @@ st.plotly_chart(fig_ma, width="stretch")
 # 9️⃣ Log Return Plot
 # ------------------------------
 st.subheader("Log Return Over Time")
-st.write("Shows logarithmic returns, useful for compounding insights.")
+st.markdown("Natural log of returns for statistical analysis and compounding effects.")
 fig_log = px.line(
     df,
     x="date",
@@ -134,7 +133,7 @@ st.plotly_chart(fig_log, width="stretch")
 # 🔟 Volume Plot
 # ------------------------------
 st.subheader("Volume Over Time")
-st.write("Daily traded volume trends.")
+st.markdown("Trading volume trends over time for each asset.")
 fig_volume = px.line(
     df,
     x="date",
@@ -149,12 +148,14 @@ st.plotly_chart(fig_volume, width="stretch")
 # 1️⃣1️⃣ Multi-Metric Toggle Plot with Dual Y-Axis
 # ------------------------------
 st.subheader("Interactive Multi-Metric Plot (Dual Y-Axis)")
-st.write("Select multiple metrics and view returns vs volume on dual axes.")
+st.markdown("Compare returns and volume on the same plot. Volume will be on the secondary axis if selected.")
+
 metrics = st.multiselect(
     "Select Metrics to Display",
     options=["daily_return", "daily_return_7d_ma", "log_return", "volume"],
     default=["daily_return", "daily_return_7d_ma"]
 )
+
 if metrics:
     use_secondary_y = "volume" in metrics
     fig_multi = make_subplots(specs=[[{"secondary_y": use_secondary_y}]])
@@ -181,7 +182,11 @@ if metrics:
                     ),
                     secondary_y=False
                 )
-    fig_multi.update_layout(title_text="Selected Metrics Over Time (Dual Y-Axis)", xaxis_title="Date")
+
+    fig_multi.update_layout(
+        title_text="Selected Metrics Over Time (Dual Y-Axis)",
+        xaxis_title="Date"
+    )
     if use_secondary_y:
         fig_multi.update_yaxes(title_text="Returns", secondary_y=False)
         fig_multi.update_yaxes(title_text="Volume", secondary_y=True)
@@ -192,55 +197,54 @@ else:
     st.info("Select at least one metric to display.")
 
 # ------------------------------
-# 1️⃣2️⃣ Rolling Sharpe Ratio
+# 1️⃣2️⃣ Additional Risk Metrics (VaR & Drawdown)
 # ------------------------------
-st.subheader("Rolling 7-Day Sharpe Ratio")
-st.write("Risk-adjusted performance: average return / volatility over a rolling window.")
-rolling_window = 7
-df_sharpe = df.copy()
-df_sharpe['sharpe_7d'] = df_sharpe.groupby('asset')['daily_return'].transform(
-    lambda x: x.rolling(rolling_window).mean() / x.rolling(rolling_window).std()
-)
-fig_sharpe = px.line(
-    df_sharpe,
-    x='date',
-    y='sharpe_7d',
-    color='asset',
-    labels={'sharpe_7d': 'Rolling Sharpe Ratio', 'date': 'Date'},
-    title='Rolling 7-Day Sharpe Ratio'
-)
-st.plotly_chart(fig_sharpe, width="stretch")
+st.subheader("Additional Risk Metrics")
+st.markdown("Value at Risk (5%) and Maximum Drawdown per asset.")
 
-# ------------------------------
-# 1️⃣3️⃣ Correlation Matrix Heatmap
-# ------------------------------
-st.subheader("Correlation Matrix Between Selected Assets")
-st.write("Shows how selected assets move together (1 = perfect correlation, -1 = inverse).")
-pivot_returns = df.pivot(index='date', columns='asset', values='daily_return')
-corr_matrix = pivot_returns.corr()
-fig_corr = px.imshow(
-    corr_matrix,
-    text_auto=True,
-    color_continuous_scale='RdBu_r',
-    zmin=-1,
-    zmax=1,
-    labels={'color': 'Correlation'}
-)
-st.plotly_chart(fig_corr, width="stretch")
+# Function to compute rolling drawdown
+def rolling_drawdown(series):
+    cumulative = (1 + series).cumprod()
+    peak = cumulative.cummax()
+    drawdown = (cumulative - peak) / peak
+    return drawdown
 
-# ------------------------------
-# 1️⃣4️⃣ Cumulative Return Plot
-# ------------------------------
-st.subheader("Cumulative Return Over Time")
-st.write("Shows total compounded return for each asset over the selected date range.")
-df_cum = df.copy()
-df_cum['cum_return'] = df_cum.groupby('asset')['daily_return'].apply(lambda x: (1 + x).cumprod() - 1)
-fig_cum = px.line(
-    df_cum,
-    x='date',
-    y='cum_return',
-    color='asset',
-    labels={'cum_return': 'Cumulative Return', 'date': 'Date'},
-    title='Cumulative Return Trends'
+risk_metrics = []
+for asset in df['asset'].unique():
+    df_asset = df[df['asset'] == asset].copy()
+    
+    # Value at Risk (5% quantile of daily return)
+    var_5 = df_asset['daily_return'].quantile(0.05)
+    
+    # Max drawdown
+    drawdown = rolling_drawdown(df_asset['daily_return'])
+    max_dd = drawdown.min()
+    
+    risk_metrics.append({
+        "asset": asset,
+        "VaR 5%": var_5,
+        "Max Drawdown": max_dd
+    })
+
+df_risk = pd.DataFrame(risk_metrics)
+
+# Display table with formatting
+st.dataframe(df_risk.style.format({
+    "VaR 5%": "{:.2%}",
+    "Max Drawdown": "{:.2%}"
+}))
+
+# Optional: Drawdown Over Time Plot
+st.subheader("Drawdown Over Time")
+st.markdown("Visualize cumulative drawdown trends for each asset.")
+fig_dd = px.line(
+    pd.concat([
+        df.assign(drawdown=rolling_drawdown(df['daily_return']))
+    ]),
+    x="date",
+    y="drawdown",
+    color="asset",
+    labels={"drawdown": "Drawdown", "date": "Date"},
+    title="Drawdown Trends"
 )
-st.plotly_chart(fig_cum, width="stretch")
+st.plotly_chart(fig_dd, width="stretch")
