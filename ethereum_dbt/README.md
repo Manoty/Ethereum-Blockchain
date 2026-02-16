@@ -1,108 +1,110 @@
-📊 Ethereum & Crypto Analytics Dashboard
+📈 Crypto Analytics Dashboard
 
-A Streamlit-powered interactive dashboard for analyzing cryptocurrency daily metrics. Built on DuckDB, Pandas, and Plotly, this dashboard provides insights into asset returns, volatility, correlations, and risk-adjusted performance.
+A fully interactive Streamlit dashboard for analyzing cryptocurrency daily metrics, built on DuckDB, Pandas, and Plotly. Explore asset returns, volatility, correlations, and risk-adjusted performance for multiple assets in one place.
 
-🚀 Features
+This project demonstrates data engineering, analytics, and visualization skills for portfolio and professional use.
 
-Daily Return Analysis – visualize day-to-day performance trends.
+💡 Key Features
 
-7-Day Moving Average – smooth out noise to identify trends.
+Daily Return Analysis – visualize daily gains and losses per asset.
 
-Log Returns – for multiplicative return analysis.
+7-Day Moving Average – smooth out short-term fluctuations.
 
-Trading Volume Visualization – track liquidity and market activity.
+Log Returns – measure multiplicative changes.
 
-Multi-Metric Interactive Plot – compare multiple metrics with dual Y-axis support.
+Trading Volume Insights – analyze liquidity and market activity trends.
 
-Rolling Sharpe Ratio – assess risk-adjusted returns.
+Multi-Metric Interactive Plot – compare multiple metrics simultaneously with dual Y-axis support.
 
-Correlation Heatmap – examine relationships between asset returns.
+Rolling Sharpe Ratio – assess risk-adjusted performance dynamically.
 
-Download Filtered Data – export selected datasets as CSV.
+Correlation Heatmap – identify relationships and dependencies between assets.
 
-Fully interactive date and asset selection.
+Download Filtered Data – export selected datasets for offline analysis.
 
-🛠 Technology Stack
+Each visualization includes hover tooltips, formatted axes, and labels for readability.
 
-Python 3.11
+🔧 Tech Stack
 
-Streamlit – front-end dashboard interface
+Python 3.13
 
-DuckDB – local analytical database
+Streamlit – interactive dashboard interface
 
-Pandas & NumPy – data wrangling & calculations
+DuckDB – local analytical database for fast queries
 
-Plotly – interactive visualizations
+Pandas & NumPy – data wrangling and calculations
 
-Plotly Express / Graph Objects – line charts, dual-axis plots, heatmaps
+Plotly – interactive visualizations (line charts, dual-axis plots, heatmaps)
 
-📂 Project Structure
+🗂 Project Structure
 ethereum_dbt/
-├─ app.py                 # Streamlit dashboard main app
-├─ data.py                # Optional data utilities
-├─ dev.duckdb             # DuckDB database (local)
-├─ models/                # dbt models
-├─ seeds/                 # Seed CSV data
+├─ app.py                 # Main Streamlit dashboard
+├─ data.py                # Data utility functions
+├─ dev.duckdb             # Local DuckDB database (not in GitHub)
+├─ models/                # dbt models for feature engineering
+├─ seeds/                 # Seed CSVs for dbt
 ├─ snapshots/             # dbt snapshots
 ├─ sources/               # dbt sources
 ├─ tests/                 # dbt tests
 ├─ requirements.txt       # Python dependencies
 └─ README.md              # This file
 
-⚡ Installation & Running
+🚀 Installation & Run
 
-Clone the repo
+Clone the repository:
 
 git clone <repo-url>
 cd ethereum_dbt
 
 
-Create and activate virtual environment
+Set up a virtual environment:
 
 python -m venv venv
-source venv/bin/activate       # Linux / Mac
-venv\Scripts\activate          # Windows
+source venv/bin/activate  # Linux / Mac
+venv\Scripts\activate     # Windows
 
 
-Install dependencies
+Install dependencies:
 
 pip install -r requirements.txt
 
 
-Run Streamlit app
+Launch the dashboard:
 
 streamlit run app.py
 
-🎛 Usage
-
-Select one or more cryptocurrencies from the sidebar.
-
-Pick a date range to filter the data.
-
-Explore the charts: Daily Returns, Log Returns, Volume, 7-day MA.
-
-Use the multi-metric plot to compare multiple metrics.
-
-Check risk-adjusted performance using the rolling Sharpe ratio.
-
-Explore asset correlations via the heatmap.
-
-Download the filtered data for offline analysis.
 
 
+🎛 How to Use
 
-📝 Contributing
+Select assets from the sidebar.
 
-Pull requests are welcome.
+Pick a date range to filter data.
 
-Please update tests and documentation as needed.
+Explore the interactive charts:
 
-Ensure DuckDB files are available locally to run the app.
+Daily Returns
 
-⚠️ Notes
+7-Day Moving Average
 
-Database (dev.duckdb) is not included in GitHub.
+Log Returns
 
-Ensure dependencies match requirements.txt.
+Trading Volume
 
-Tested on Python 3.11 and Streamlit 1.54.0.
+Multi-Metric Dual Y-Axis Plot
+
+Rolling Sharpe Ratio
+
+Correlation Heatmap
+
+Download filtered data as CSV for offline analysis.
+
+Each chart provides tooltips, formatted axes, and legends for quick understanding.
+
+
+
+📌 Notes
+
+dev.duckdb is not included in the repository. Place it in the project root to run locally.
+
+Tested on Python 3.11, Streamlit 1.54, DuckDB 1.4+.
