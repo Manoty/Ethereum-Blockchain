@@ -1,111 +1,269 @@
-📈 Crypto Analytics Dashboard
+📊 Crypto Performance & Risk Analytics Dashboard
 
-A fully interactive Streamlit dashboard for analyzing cryptocurrency daily metrics, built on DuckDB, Pandas, and Plotly. Explores asset returns, volatility, correlations, and risk-adjusted performance for multiple assets in one place.
+A quantitative crypto analytics dashboard built with Streamlit, DuckDB, Pandas, and Plotly.
 
-This project demonstrates data engineering, analytics, and visualization skills for portfolio and professional use.
+This project delivers performance analysis, volatility modeling, correlation insights, and portfolio-level risk analytics using engineered financial features.
 
-💡 Key Features
+🚀 Overview
 
->Daily Return Analysis – visualize daily gains and losses per asset.
+This dashboard allows users to:
 
->7-Day Moving Average – smooth out short-term fluctuations.
+Select multiple crypto assets
 
->Log Returns – measure multiplicative changes.
+Filter by custom date ranges
 
->Trading Volume Insights – analyze liquidity and market activity trends.
+Analyze return behavior
 
->Multi-Metric Interactive Plot – compare multiple metrics simultaneously with dual Y-axis support.
+Measure rolling volatility
 
->Rolling Sharpe Ratio – assess risk-adjusted performance dynamically.
+Evaluate Sharpe ratios
 
->Correlation Heatmap – identify relationships and dependencies between assets.
+Visualize cross-asset correlations
 
->Download Filtered Data – export selected datasets for offline analysis.
+Build an equal-weighted portfolio
 
->Each visualization includes hover tooltips, formatted axes, and labels for readability.
+Analyze drawdowns and risk metrics
 
-🔧 Tech Stack
+Export filtered datasets
 
--Python 3.11
+The system is backed by a DuckDB analytical database built from a dbt pipeline.
 
--Streamlit – interactive dashboard interface
+🏗️ Architecture
 
--DuckDB – local analytical database for fast queries
+Data Layer
 
--Pandas & NumPy – data wrangling and calculations
+dbt transformations
 
--Plotly – interactive visualizations (line charts, dual-axis plots, heatmaps)
+DuckDB analytics warehouse (dev.duckdb)
 
-🗂 Project Structure
+Feature engineering models
 
+Analytics Layer
+
+Rolling statistics
+
+Cumulative returns
+
+Volatility modeling
+
+Sharpe ratio computation
+
+Correlation matrix
+
+Portfolio risk metrics
+
+Application Layer
+
+Streamlit dashboard
+
+Plotly interactive visualizations
+
+📂 Project Structure
 ethereum_dbt/
-├─ app.py                 # Main Streamlit dashboard
-├─ data.py                # Data utility functions
-├─ dev.duckdb             # Local DuckDB database (not in GitHub)
-├─ models/                # dbt models for feature engineering
-├─ seeds/                 # Seed CSVs for dbt
-├─ snapshots/             # dbt snapshots
-├─ sources/               # dbt sources
-├─ tests/                 # dbt tests
-├─ requirements.txt       # Python dependencies
-└─ README.md              # This file
+│
+├── app.py
+├── dev.duckdb
+├── models/
+│   ├── staging/
+│   ├── intermediate/
+│   └── marts/
+├── seeds/
+├── dbt_project.yml
+├── requirements.txt
+└── README.md
 
-🚀 Installation & Run
+📈 Analytics & Metrics
+Asset-Level Metrics
 
-Clone the repository:
+Daily Return
 
-git clone <repo-url>
-cd ethereum_dbt
+7-Day Moving Average Return
 
+Cumulative Return (Growth of $1)
 
-Set up a virtual environment:
+30-Day Rolling Volatility (Annualized)
 
-python -m venv venv
-source venv/bin/activate  # Linux / Mac
-venv\Scripts\activate     # Windows
-
-
-Install dependencies:
-
-pip install -r requirements.txt
-
-
-Launch the dashboard:
-
-streamlit run app.py
-
-
-
-🎛 How to Use
-
-Select assets from the sidebar.
-
-Pick a date range to filter data.
-
-Explore the interactive charts:
-
-Daily Returns
-
-7-Day Moving Average
+30-Day Rolling Sharpe Ratio
 
 Log Returns
 
 Trading Volume
 
-Multi-Metric Dual Y-Axis Plot
+Correlation Matrix
 
-Rolling Sharpe Ratio
+📊 Portfolio Risk Analytics (Equal Weighted)
 
-Correlation Heatmap
+When multiple assets are selected, the dashboard automatically builds an equal-weighted portfolio.
 
-Download filtered data as CSV for offline analysis.
+Portfolio metrics include:
 
-Each chart provides tooltips, formatted axes, and legends for quick understanding.
+Portfolio Cumulative Return
+
+Annualized Volatility
+
+Sharpe Ratio
+
+Rolling 30-Day Sharpe
+
+Maximum Drawdown
+
+Drawdown Time Series
+
+🧠 Risk Metric Definitions
+
+Volatility (Annualized)
+Standard deviation of daily returns scaled by √365.
+
+Sharpe Ratio
+Risk-adjusted return metric:
+
+(mean portfolio return / std deviation) × √365
 
 
+Drawdown
+Peak-to-trough decline in portfolio value.
 
-📌 Notes
+Max Drawdown
+Largest observed drawdown during selected period.
 
-dev.duckdb is not included in the repository. Place it in the project root to run locally.
+🛠️ Tech Stack
 
-Tested on Python 3.11, Streamlit 1.54, DuckDB 1.4+.
+Python 3.10+
+
+Streamlit
+
+DuckDB
+
+dbt
+
+Pandas
+
+NumPy
+
+Plotly
+
+⚙️ Installation
+1️⃣ Clone Repository
+git clone https://github.com/your-username/crypto-risk-dashboard.git
+cd crypto-risk-dashboard
+
+2️⃣ Install Dependencies
+pip install -r requirements.txt
+
+3️⃣ Run dbt (if rebuilding database)
+dbt run
+
+4️⃣ Launch App
+streamlit run app.py
+
+📦 Data Source
+
+The DuckDB database is generated via dbt transformations from structured crypto price data.
+
+Core table used:
+
+int_crypto_features
+
+
+Includes:
+
+close_price
+
+daily_return
+
+log_return
+
+volume
+
+engineered rolling features
+
+📊 Features Engineered
+
+Rolling mean returns
+
+Rolling volatility (30D)
+
+Rolling Sharpe (30D)
+
+7-day smoothed returns
+
+Cumulative return curves
+
+Portfolio drawdown tracking
+
+📤 Export Capability
+
+Users can download filtered data directly from the dashboard as a CSV file.
+
+🌍 Deployment
+
+Deployable on:
+
+Streamlit Community Cloud
+
+Render
+
+Railway
+
+Docker environments
+
+Ensure dev.duckdb is included in deployment root.
+
+🗺️ Roadmap
+Phase 1 (Completed)
+
+Asset-level analytics
+
+Rolling risk metrics
+
+Correlation matrix
+
+Equal-weighted portfolio
+
+Drawdown analysis
+
+Phase 2 (In Progress / Optional Expansion)
+
+Value at Risk (VaR)
+
+Sortino Ratio
+
+Beta vs BTC
+
+Efficient Frontier
+
+Monte Carlo simulation
+
+Risk-adjusted ranking system
+
+📌 Future Enhancements
+
+Custom portfolio weights
+
+Risk-free rate input
+
+Backtesting engine
+
+Strategy comparison framework
+
+Factor modeling
+
+Regime detection
+
+API integration for live pricing
+
+📜 License
+
+MIT License
+
+👤 Author
+
+Built as a quantitative analytics engineering project combining:
+
+Data modeling
+
+Financial risk analytics
+
+Portfolio theory
+
+Interactive dashboard engineering
