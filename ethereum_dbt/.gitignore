@@ -9,3 +9,21 @@ duckdb/
 *.duckdb
 *.duckdb.wal
 *.db
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+venv/
+.env/
+
+# Database
+*.duckdb
+*.db
+
+# Streamlit
+.streamlit/
+
+# OS
+.DS_Store

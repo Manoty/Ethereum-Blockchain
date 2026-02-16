@@ -294,3 +294,4 @@ st.download_button(
     file_name="crypto_filtered_data.csv",
     mime="text/csv"
 )
+
