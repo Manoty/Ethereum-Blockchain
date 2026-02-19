@@ -1,5 +1,3 @@
--- models/intermediate/int_daily_asset_metrics.sql
-
 select *
 from (
     with base as (

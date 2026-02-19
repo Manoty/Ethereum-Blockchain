@@ -1,7 +1,7 @@
 import duckdb
 import os
 
-# Directory where you saved CSVs
+# Directory for saved CSVs
 csv_dir = "datasets"  # e.g., datasets/blocks.csv, datasets/transactions.csv
 
 # Connect to DuckDB

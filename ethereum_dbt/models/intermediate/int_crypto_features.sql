@@ -28,7 +28,7 @@ with base as (
 
     from {{ ref('stg_all_crypto') }}
 
-    -- 🔥 CLEAN BAD ROWS
+    -- CLEAN BAD ROWS
     where open_price > 0
       and close_price > 0
       and volume > 0
@@ -284,7 +284,7 @@ else:
     st.info("Select at least one metric to display.")
 
 # ------------------------------
-# 1️⃣2️⃣ Optional: Download Filtered Data
+# 1️⃣2️⃣ Op: Download Filtered Data
 # ------------------------------
 st.subheader("Download Filtered Data")
 st.markdown("Download the currently filtered data as CSV for offline analysis.")
